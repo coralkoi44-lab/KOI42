@@ -19,6 +19,10 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       background: var(--orange);
@@ -42,11 +46,16 @@
       cursor: pointer;
     }
 
+    button:hover {
+      transform: translateY(-1px);
+    }
+
     #aestheticButton {
       position: fixed;
       top: 24px;
       left: 24px;
-      z-index: 20;
+      z-index: 50;
+      background: inherit;
     }
 
     .hero {
@@ -55,7 +64,7 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 80px 24px;
+      padding: 100px 24px 80px;
     }
 
     h1 {
@@ -73,12 +82,12 @@
 
     .game-section {
       min-height: 100vh;
-      padding: 80px 24px;
+      padding: 110px 24px 80px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border-top: 2px solid currentColor;
+      box-shadow: inset 0 2px 0 currentColor;
       overflow: hidden;
     }
 
@@ -139,6 +148,7 @@
       background: color-mix(in srgb, currentColor 12%, transparent);
       backdrop-filter: blur(2px);
       padding: 20px;
+      z-index: 5;
     }
 
     .overlay.hidden {
@@ -150,7 +160,7 @@
       color: var(--charcoal);
       border: 2px solid currentColor;
       padding: 22px;
-      max-width: 190px;
+      max-width: 200px;
     }
 
     body.aesthetic-mode .overlay-box {
@@ -184,6 +194,54 @@
       font-size: 34px;
       margin-bottom: 20px;
     }
+
+    .side-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .controls-modal {
+      position: fixed;
+      inset: 0;
+      background: color-mix(in srgb, currentColor 18%, transparent);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+    }
+
+    .controls-modal.hidden {
+      display: none;
+    }
+
+    .controls-box {
+      background: var(--orange);
+      color: var(--charcoal);
+      border: 2px solid currentColor;
+      padding: 28px;
+      max-width: 360px;
+      width: 100%;
+    }
+
+    body.aesthetic-mode .controls-box {
+      background: var(--charcoal);
+      color: var(--orange);
+    }
+
+    .controls-box h3 {
+      margin: 0 0 16px;
+      font-size: 36px;
+      letter-spacing: -0.05em;
+    }
+
+    .controls-box p {
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 0 0 20px;
+    }
   </style>
 </head>
 
@@ -197,7 +255,7 @@
     </main>
   </section>
 
-  <section class="game-section">
+  <section class="game-section" id="gameSection">
     <h2>tetris zone</h2>
 
     <div class="game-wrap">
@@ -223,30 +281,63 @@
 
       <div class="panel">
         <div class="score">score: <span id="score">0</span></div>
-        <p>
-          controls:<br>
-          ← → move<br>
-          ↓ soft drop<br>
-          ↑ rotate<br>
-          space hard drop<br>
-          R restart
-        </p>
-        <button id="restartButton">RESTART</button>
+
+        <div class="side-buttons">
+          <button id="controlsButton">CONTROLS</button>
+          <button id="fullscreenButton">FULLSCREEN</button>
+          <button id="restartButton">RESTART</button>
+        </div>
       </div>
     </div>
   </section>
 
+  <div class="controls-modal hidden" id="controlsModal">
+    <div class="controls-box">
+      <h3>controls</h3>
+      <p>
+        ← → move<br>
+        ↓ soft drop<br>
+        ↑ rotate<br>
+        space hard drop<br>
+        R restart<br>
+        ESC close this screen
+      </p>
+      <button id="closeControlsButton">CLOSE</button>
+    </div>
+  </div>
+
   <script>
     const aestheticButton = document.getElementById("aestheticButton");
     const gameBoard = document.getElementById("gameBoard");
+    const gameSection = document.getElementById("gameSection");
     const startScreen = document.getElementById("startScreen");
     const gameOverScreen = document.getElementById("gameOverScreen");
     const beginButton = document.getElementById("beginButton");
     const playAgainButton = document.getElementById("playAgainButton");
     const restartButton = document.getElementById("restartButton");
+    const controlsButton = document.getElementById("controlsButton");
+    const fullscreenButton = document.getElementById("fullscreenButton");
+    const controlsModal = document.getElementById("controlsModal");
+    const closeControlsButton = document.getElementById("closeControlsButton");
 
     aestheticButton.addEventListener("click", () => {
       document.body.classList.toggle("aesthetic-mode");
+    });
+
+    controlsButton.addEventListener("click", () => {
+      controlsModal.classList.remove("hidden");
+    });
+
+    closeControlsButton.addEventListener("click", () => {
+      controlsModal.classList.add("hidden");
+    });
+
+    fullscreenButton.addEventListener("click", () => {
+      if (!document.fullscreenElement) {
+        gameSection.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
     });
 
     const canvas = document.getElementById("tetris");
@@ -354,6 +445,24 @@
       }
     }
 
+    function lockPiece(impactType) {
+      merge(arena, player);
+
+      if (impactType) {
+        triggerImpact(impactType);
+      }
+
+      playerReset();
+
+      const clearedLines = arenaSweep();
+
+      if (clearedLines > 0) {
+        triggerImpact("big");
+      }
+
+      updateScore();
+    }
+
     function playerDrop(isManual = false) {
       if (!gameStarted || gameOver) return;
 
@@ -361,21 +470,7 @@
 
       if (collide(arena, player)) {
         player.pos.y--;
-        merge(arena, player);
-
-        if (isManual) triggerImpact("small");
-
-        playerReset();
-
-        const clearedLines = arenaSweep();
-
-        if (clearedLines > 0) {
-          triggerImpact("big");
-        }
-
-        updateScore();
-      } else if (isManual) {
-        triggerImpact("small");
+        lockPiece(isManual ? "small" : null);
       }
 
       dropCounter = 0;
@@ -389,18 +484,7 @@
       }
 
       player.pos.y--;
-      merge(arena, player);
-      triggerImpact("small");
-
-      playerReset();
-
-      const clearedLines = arenaSweep();
-
-      if (clearedLines > 0) {
-        triggerImpact("big");
-      }
-
-      updateScore();
+      lockPiece("small");
       dropCounter = 0;
     }
 
@@ -535,16 +619,14 @@
     }
 
     document.addEventListener("keydown", event => {
-      const gameKeys = [
-        "ArrowLeft",
-        "ArrowRight",
-        "ArrowDown",
-        "ArrowUp",
-        "Space"
-      ];
+      const gameKeys = ["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Space"];
 
       if (gameStarted && gameKeys.includes(event.code)) {
         event.preventDefault();
+      }
+
+      if (event.key === "Escape") {
+        controlsModal.classList.add("hidden");
       }
 
       if (event.key === "ArrowLeft") playerMove(-1);
