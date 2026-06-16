@@ -55,11 +55,7 @@
       top: 24px;
       left: 24px;
       z-index: 50;
-      background: var(--orange);
-    }
-
-    body.aesthetic-mode #aestheticButton {
-      background: var(--charcoal);
+      background: inherit;
     }
 
     .hero {
@@ -93,25 +89,6 @@
       justify-content: center;
       box-shadow: inset 0 2px 0 currentColor;
       overflow: hidden;
-      background: inherit;
-      color: inherit;
-    }
-
-    .game-section:fullscreen {
-      width: 100vw;
-      height: 100vh;
-      padding: 32px;
-      background: var(--orange);
-      color: var(--charcoal);
-    }
-
-    body.aesthetic-mode .game-section:fullscreen {
-      background: var(--charcoal);
-      color: var(--orange);
-    }
-
-    .game-section:fullscreen h2 {
-      display: none;
     }
 
     .game-section h2 {
@@ -128,19 +105,12 @@
       justify-content: center;
     }
 
-    .game-section:fullscreen .game-wrap {
-      width: 100%;
-      height: 100%;
-      align-items: center;
-      gap: 40px;
-    }
-
     .game-board {
       position: relative;
     }
 
     .game-board.impact-small {
-      animation: impactSmall 0.13s ease;
+      animation: impactSmall 0.16s ease;
     }
 
     .game-board.impact-big {
@@ -149,15 +119,16 @@
 
     @keyframes impactSmall {
       0% { transform: translateY(0); }
-      40% { transform: translateY(5px); }
+      35% { transform: translateY(5px); }
+      65% { transform: translateY(-2px); }
       100% { transform: translateY(0); }
     }
 
     @keyframes impactBig {
       0% { transform: translate(0, 0) rotate(0deg); }
-      20% { transform: translate(-5px, 8px) rotate(-1deg); }
+      20% { transform: translate(-4px, 7px) rotate(-1deg); }
       40% { transform: translate(5px, -3px) rotate(1deg); }
-      70% { transform: translate(-2px, 4px) rotate(-0.5deg); }
+      65% { transform: translate(-2px, 4px) rotate(-0.5deg); }
       100% { transform: translate(0, 0) rotate(0deg); }
     }
 
@@ -165,23 +136,6 @@
       display: block;
       border: 3px solid currentColor;
       background: rgba(255, 255, 255, 0.08);
-    }
-
-    #tetris {
-      width: min(72vw, 360px);
-      height: auto;
-      image-rendering: pixelated;
-    }
-
-    .game-section:fullscreen #tetris {
-      width: min(62vw, 72vh);
-      max-height: 88vh;
-    }
-
-    #nextCanvas {
-      width: 120px;
-      height: 120px;
-      image-rendering: pixelated;
     }
 
     .overlay {
@@ -201,17 +155,15 @@
       display: none;
     }
 
-    .overlay-box,
-    .controls-box {
+    .overlay-box {
       background: var(--orange);
       color: var(--charcoal);
       border: 2px solid currentColor;
       padding: 22px;
-      max-width: 240px;
+      max-width: 200px;
     }
 
-    body.aesthetic-mode .overlay-box,
-    body.aesthetic-mode .controls-box {
+    body.aesthetic-mode .overlay-box {
       background: var(--charcoal);
       color: var(--orange);
     }
@@ -243,18 +195,10 @@
       margin-bottom: 20px;
     }
 
-    .next-title {
-      font-family: "Plus Jakarta Sans", sans-serif;
-      font-size: 22px;
-      margin: 18px 0 8px;
-      letter-spacing: -0.04em;
-    }
-
     .side-buttons {
       display: flex;
       flex-direction: column;
       gap: 12px;
-      margin-top: 18px;
     }
 
     .controls-modal {
@@ -274,8 +218,17 @@
     }
 
     .controls-box {
+      background: var(--orange);
+      color: var(--charcoal);
+      border: 2px solid currentColor;
+      padding: 28px;
       max-width: 360px;
       width: 100%;
+    }
+
+    body.aesthetic-mode .controls-box {
+      background: var(--charcoal);
+      color: var(--orange);
     }
 
     .controls-box h3 {
@@ -328,9 +281,6 @@
 
       <div class="panel">
         <div class="score">score: <span id="score">0</span></div>
-
-        <div class="next-title">next block</div>
-        <canvas id="nextCanvas" width="120" height="120"></canvas>
 
         <div class="side-buttons">
           <button id="controlsButton">CONTROLS</button>
@@ -392,25 +342,11 @@
 
     const canvas = document.getElementById("tetris");
     const context = canvas.getContext("2d");
+    const scoreElement = document.getElementById("score");
+
     context.scale(20, 20);
 
-    const nextCanvas = document.getElementById("nextCanvas");
-    const nextContext = nextCanvas.getContext("2d");
-    nextContext.scale(20, 20);
-
-    const scoreElement = document.getElementById("score");
     const arena = createMatrix(12, 20);
-
-    const colors = [
-      null,
-      "#E84A5F",
-      "#FFD166",
-      "#F77F00",
-      "#9B5DE5",
-      "#06D6A0",
-      "#118AB2",
-      "#EF476F"
-    ];
 
     const player = {
       pos: { x: 0, y: 0 },
@@ -418,23 +354,11 @@
       score: 0
     };
 
-    let nextPiece = null;
     let gameStarted = false;
     let gameOver = false;
     let dropCounter = 0;
-    let dropInterval = 650;
+    let dropInterval = 700;
     let lastTime = 0;
-
-    const keys = {
-      left: false,
-      right: false,
-      down: false
-    };
-
-    let moveTimer = 0;
-    let softDropTimer = 0;
-    const moveInterval = 85;
-    const softDropInterval = 42;
 
     function createMatrix(width, height) {
       const matrix = [];
@@ -450,11 +374,6 @@
       if (type === "I") return [[0, 5, 0, 0], [0, 5, 0, 0], [0, 5, 0, 0], [0, 5, 0, 0]];
       if (type === "S") return [[0, 6, 6], [6, 6, 0], [0, 0, 0]];
       if (type === "Z") return [[7, 7, 0], [0, 7, 7], [0, 0, 0]];
-    }
-
-    function randomPiece() {
-      const pieces = "TJLOSZI";
-      return createPiece(pieces[Math.floor(Math.random() * pieces.length)]);
     }
 
     function collide(arena, player) {
@@ -529,13 +448,17 @@
     function lockPiece(impactType) {
       merge(arena, player);
 
-      if (impactType) triggerImpact(impactType);
+      if (impactType) {
+        triggerImpact(impactType);
+      }
 
       playerReset();
 
       const clearedLines = arenaSweep();
 
-      if (clearedLines > 0) triggerImpact("big");
+      if (clearedLines > 0) {
+        triggerImpact("big");
+      }
 
       updateScore();
     }
@@ -566,15 +489,12 @@
     }
 
     function playerReset() {
-      player.matrix = nextPiece || randomPiece();
-      nextPiece = randomPiece();
-
+      const pieces = "TJLOSZI";
+      player.matrix = createPiece(pieces[Math.floor(Math.random() * pieces.length)]);
       player.pos.y = 0;
       player.pos.x =
         Math.floor(arena[0].length / 2) -
         Math.floor(player.matrix[0].length / 2);
-
-      drawNext();
 
       if (collide(arena, player)) {
         endGame();
@@ -611,21 +531,17 @@
 
       setTimeout(() => {
         gameBoard.classList.remove(className);
-      }, type === "big" ? 260 : 160);
+      }, type === "big" ? 260 : 180);
     }
 
-    function drawMatrix(matrix, offset, ctx = context) {
+    function drawMatrix(matrix, offset) {
       if (!matrix) return;
 
       matrix.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
-            ctx.fillStyle = colors[value];
-            ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
-
-            ctx.strokeStyle = getComputedStyle(document.body).color;
-            ctx.lineWidth = 0.06;
-            ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
+            context.fillStyle = getComputedStyle(document.body).color;
+            context.fillRect(x + offset.x, y + offset.y, 1, 1);
           }
         });
       });
@@ -633,27 +549,13 @@
 
     function drawGrid() {
       context.strokeStyle = getComputedStyle(document.body).color;
-      context.lineWidth = 0.025;
+      context.lineWidth = 0.03;
 
       for (let x = 0; x < 12; x++) {
         for (let y = 0; y < 20; y++) {
           context.strokeRect(x, y, 1, 1);
         }
       }
-    }
-
-    function drawNext() {
-      nextContext.fillStyle = getComputedStyle(document.body).backgroundColor;
-      nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
-
-      if (!nextPiece) return;
-
-      const offset = {
-        x: Math.floor((6 - nextPiece[0].length) / 2),
-        y: Math.floor((6 - nextPiece.length) / 2)
-      };
-
-      drawMatrix(nextPiece, offset, nextContext);
     }
 
     function draw() {
@@ -666,8 +568,6 @@
       if (gameStarted && !gameOver) {
         drawMatrix(player.matrix, player.pos);
       }
-
-      drawNext();
     }
 
     function updateScore() {
@@ -679,7 +579,6 @@
       player.score = 0;
       updateScore();
 
-      nextPiece = randomPiece();
       gameStarted = true;
       gameOver = false;
       dropCounter = 0;
@@ -709,23 +608,6 @@
 
       if (gameStarted && !gameOver) {
         dropCounter += deltaTime;
-        moveTimer += deltaTime;
-        softDropTimer += deltaTime;
-
-        if (keys.left && moveTimer > moveInterval) {
-          playerMove(-1);
-          moveTimer = 0;
-        }
-
-        if (keys.right && moveTimer > moveInterval) {
-          playerMove(1);
-          moveTimer = 0;
-        }
-
-        if (keys.down && softDropTimer > softDropInterval) {
-          playerDrop(true);
-          softDropTimer = 0;
-        }
 
         if (dropCounter > dropInterval) {
           playerDrop(false);
@@ -747,26 +629,12 @@
         controlsModal.classList.add("hidden");
       }
 
-      if (event.key === "ArrowLeft") {
-        if (!keys.left) playerMove(-1);
-        keys.left = true;
-      }
+      if (event.key === "ArrowLeft") playerMove(-1);
+      if (event.key === "ArrowRight") playerMove(1);
+      if (event.key === "ArrowDown") playerDrop(true);
+      if (event.key === "ArrowUp") playerRotate(1);
 
-      if (event.key === "ArrowRight") {
-        if (!keys.right) playerMove(1);
-        keys.right = true;
-      }
-
-      if (event.key === "ArrowDown") {
-        if (!keys.down) playerDrop(true);
-        keys.down = true;
-      }
-
-      if (event.key === "ArrowUp" && !event.repeat) {
-        playerRotate(1);
-      }
-
-      if (event.code === "Space" && !event.repeat) {
+      if (event.code === "Space") {
         event.preventDefault();
         playerHardDrop();
       }
@@ -774,12 +642,6 @@
       if (event.key.toLowerCase() === "r" && gameStarted) {
         restartGame();
       }
-    });
-
-    document.addEventListener("keyup", event => {
-      if (event.key === "ArrowLeft") keys.left = false;
-      if (event.key === "ArrowRight") keys.right = false;
-      if (event.key === "ArrowDown") keys.down = false;
     });
 
     beginButton.addEventListener("click", startGame);
