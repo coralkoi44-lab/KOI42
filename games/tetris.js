@@ -52,12 +52,14 @@ export function initTetris() {
   });
 
   fullscreenButton.addEventListener("click", async () => {
-    if (!document.fullscreenElement) {
-      await gameSection.requestFullscreen();
-      fullscreenButton.innerText = "EXIT FULLSCREEN";
-    } else {
-      await document.exitFullscreen();
-      fullscreenButton.innerText = "FULLSCREEN";
+    try {
+      if (!document.fullscreenElement) {
+        await gameSection.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.warn("Fullscreen failed:", error);
     }
   });
 
@@ -78,13 +80,61 @@ export function initTetris() {
   }
 
   function createPiece(type) {
-    if (type === "T") return [[0, 1, 0], [1, 1, 1], [0, 0, 0]];
-    if (type === "O") return [[2, 2], [2, 2]];
-    if (type === "L") return [[0, 3, 0], [0, 3, 0], [0, 3, 3]];
-    if (type === "J") return [[0, 4, 0], [0, 4, 0], [4, 4, 0]];
-    if (type === "I") return [[0, 5, 0, 0], [0, 5, 0, 0], [0, 5, 0, 0], [0, 5, 0, 0]];
-    if (type === "S") return [[0, 6, 6], [6, 6, 0], [0, 0, 0]];
-    if (type === "Z") return [[7, 7, 0], [0, 7, 7], [0, 0, 0]];
+    if (type === "T") {
+      return [
+        [0, 1, 0],
+        [1, 1, 1],
+        [0, 0, 0]
+      ];
+    }
+
+    if (type === "O") {
+      return [
+        [2, 2],
+        [2, 2]
+      ];
+    }
+
+    if (type === "L") {
+      return [
+        [0, 3, 0],
+        [0, 3, 0],
+        [0, 3, 3]
+      ];
+    }
+
+    if (type === "J") {
+      return [
+        [0, 4, 0],
+        [0, 4, 0],
+        [4, 4, 0]
+      ];
+    }
+
+    if (type === "I") {
+      return [
+        [0, 5, 0, 0],
+        [0, 5, 0, 0],
+        [0, 5, 0, 0],
+        [0, 5, 0, 0]
+      ];
+    }
+
+    if (type === "S") {
+      return [
+        [0, 6, 6],
+        [6, 6, 0],
+        [0, 0, 0]
+      ];
+    }
+
+    if (type === "Z") {
+      return [
+        [7, 7, 0],
+        [0, 7, 7],
+        [0, 0, 0]
+      ];
+    }
   }
 
   function randomPiece() {
@@ -236,12 +286,18 @@ export function initTetris() {
   }
 
   function finishLineClear(lines) {
-    lines
-      .sort((a, b) => b - a)
-      .forEach(y => {
-        const row = arena.splice(y, 1)[0].fill(0);
-        arena.unshift(row);
-      });
+    const clearedSet = new Set(lines);
+    const remainingRows = arena.filter((row, y) => !clearedSet.has(y));
+    const emptyRowsNeeded = arena.length - remainingRows.length;
+
+    const newArena = [
+      ...createMatrix(arena[0].length, emptyRowsNeeded),
+      ...remainingRows
+    ];
+
+    for (let y = 0; y < arena.length; y++) {
+      arena[y] = newArena[y];
+    }
 
     let rowCount = 1;
 
@@ -281,7 +337,9 @@ export function initTetris() {
     const className = type === "big" ? "impact-big" : "impact-small";
 
     gameBoard.classList.remove("impact-big", "impact-small");
+
     void gameBoard.offsetWidth;
+
     gameBoard.classList.add(className);
 
     setTimeout(() => {
@@ -329,6 +387,7 @@ export function initTetris() {
     if (!player.nextMatrix) return;
 
     const matrix = player.nextMatrix;
+
     const offset = {
       x: Math.floor((6 - matrix[0].length) / 2),
       y: Math.floor((6 - matrix.length) / 2)
@@ -347,7 +406,6 @@ export function initTetris() {
     const elapsed = now - lineClearAnimation.startTime;
     const progress = Math.min(elapsed / lineClearAnimation.duration, 1);
     const fallOffset = easeIn(progress);
-
     const clearLines = lineClearAnimation.lines;
 
     arena.forEach((row, y) => {
