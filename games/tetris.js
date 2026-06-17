@@ -20,10 +20,11 @@ export function initTetris() {
 
   const scoreElement = document.getElementById("score");
 
-  context.scale(20, 20);
-  nextContext.scale(20, 20);
+  const COLS = 12;
+  const ROWS = 20;
+  const NEXT_SIZE = 6;
 
-  const arena = createMatrix(12, 20);
+  const arena = createMatrix(COLS, ROWS);
 
   const player = {
     pos: { x: 0, y: 0 },
@@ -67,7 +68,38 @@ export function initTetris() {
     fullscreenButton.innerText = document.fullscreenElement
       ? "EXIT FULLSCREEN"
       : "FULLSCREEN";
+
+    requestAnimationFrame(() => {
+      resizeCanvases();
+      draw();
+    });
   });
+
+  window.addEventListener("resize", () => {
+    resizeCanvases();
+    draw();
+  });
+
+  function resizeCanvases() {
+    const pixelRatio = window.devicePixelRatio || 1;
+
+    const gameRect = canvas.getBoundingClientRect();
+    canvas.width = Math.round(gameRect.width * pixelRatio);
+    canvas.height = Math.round(gameRect.height * pixelRatio);
+    context.setTransform(canvas.width / COLS, 0, 0, canvas.height / ROWS, 0, 0);
+
+    const nextRect = nextCanvas.getBoundingClientRect();
+    nextCanvas.width = Math.round(nextRect.width * pixelRatio);
+    nextCanvas.height = Math.round(nextRect.height * pixelRatio);
+    nextContext.setTransform(
+      nextCanvas.width / NEXT_SIZE,
+      0,
+      0,
+      nextCanvas.height / NEXT_SIZE,
+      0,
+      0
+    );
+  }
 
   function createMatrix(width, height) {
     const matrix = [];
@@ -80,61 +112,13 @@ export function initTetris() {
   }
 
   function createPiece(type) {
-    if (type === "T") {
-      return [
-        [0, 1, 0],
-        [1, 1, 1],
-        [0, 0, 0]
-      ];
-    }
-
-    if (type === "O") {
-      return [
-        [2, 2],
-        [2, 2]
-      ];
-    }
-
-    if (type === "L") {
-      return [
-        [0, 3, 0],
-        [0, 3, 0],
-        [0, 3, 3]
-      ];
-    }
-
-    if (type === "J") {
-      return [
-        [0, 4, 0],
-        [0, 4, 0],
-        [4, 4, 0]
-      ];
-    }
-
-    if (type === "I") {
-      return [
-        [0, 5, 0, 0],
-        [0, 5, 0, 0],
-        [0, 5, 0, 0],
-        [0, 5, 0, 0]
-      ];
-    }
-
-    if (type === "S") {
-      return [
-        [0, 6, 6],
-        [6, 6, 0],
-        [0, 0, 0]
-      ];
-    }
-
-    if (type === "Z") {
-      return [
-        [7, 7, 0],
-        [0, 7, 7],
-        [0, 0, 0]
-      ];
-    }
+    if (type === "T") return [[0, 1, 0], [1, 1, 1], [0, 0, 0]];
+    if (type === "O") return [[2, 2], [2, 2]];
+    if (type === "L") return [[0, 3, 0], [0, 3, 0], [0, 3, 3]];
+    if (type === "J") return [[0, 4, 0], [0, 4, 0], [4, 4, 0]];
+    if (type === "I") return [[0, 5, 0, 0], [0, 5, 0, 0], [0, 5, 0, 0], [0, 5, 0, 0]];
+    if (type === "S") return [[0, 6, 6], [6, 6, 0], [0, 0, 0]];
+    if (type === "Z") return [[7, 7, 0], [0, 7, 7], [0, 0, 0]];
   }
 
   function randomPiece() {
@@ -260,16 +244,7 @@ export function initTetris() {
     const lines = [];
 
     for (let y = arena.length - 1; y >= 0; y--) {
-      let full = true;
-
-      for (let x = 0; x < arena[y].length; x++) {
-        if (arena[y][x] === 0) {
-          full = false;
-          break;
-        }
-      }
-
-      if (full) {
+      if (arena[y].every(cell => cell !== 0)) {
         lines.push(y);
       }
     }
@@ -281,7 +256,7 @@ export function initTetris() {
     lineClearAnimation = {
       lines,
       startTime: performance.now(),
-      duration: 100
+      duration: 150
     };
   }
 
@@ -291,7 +266,7 @@ export function initTetris() {
     const emptyRowsNeeded = arena.length - remainingRows.length;
 
     const newArena = [
-      ...createMatrix(arena[0].length, emptyRowsNeeded),
+      ...createMatrix(COLS, emptyRowsNeeded),
       ...remainingRows
     ];
 
@@ -307,7 +282,6 @@ export function initTetris() {
     }
 
     lineClearAnimation = null;
-
     triggerImpact("big");
     playerReset();
     updateScore();
@@ -323,51 +297,94 @@ export function initTetris() {
 
     player.pos.y = 0;
     player.pos.x =
-      Math.floor(arena[0].length / 2) -
+      Math.floor(COLS / 2) -
       Math.floor(player.matrix[0].length / 2);
 
-function drawNextPiece() {
-  nextContext.fillStyle = getComputedStyle(document.body).backgroundColor;
-  nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+    drawNextPiece();
 
-  nextContext.strokeStyle = getComputedStyle(document.body).color;
-  nextContext.lineWidth = 0.03;
-
-  for (let x = 0; x < 6; x++) {
-    for (let y = 0; y < 6; y++) {
-      nextContext.strokeRect(x, y, 1, 1);
+    if (collide(arena, player)) {
+      endGame();
     }
   }
 
-  if (!player.nextMatrix) return;
+  function triggerImpact(type) {
+    const className = type === "big" ? "impact-big" : "impact-small";
 
-  const matrix = player.nextMatrix;
+    gameBoard.classList.remove("impact-big", "impact-small");
+    void gameBoard.offsetWidth;
+    gameBoard.classList.add(className);
 
-  const usedCells = [];
+    setTimeout(() => {
+      gameBoard.classList.remove(className);
+    }, type === "big" ? 260 : 180);
+  }
 
-  matrix.forEach((row, y) => {
-    row.forEach((value, x) => {
-      if (value !== 0) {
-        usedCells.push({ x, y });
-      }
+  function drawMatrix(matrix, offset, drawingContext = context) {
+    if (!matrix) return;
+
+    matrix.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value !== 0) {
+          drawingContext.fillStyle = getComputedStyle(document.body).color;
+          drawingContext.fillRect(x + offset.x, y + offset.y, 1, 1);
+        }
+      });
     });
-  });
+  }
 
-  const minX = Math.min(...usedCells.map(cell => cell.x));
-  const maxX = Math.max(...usedCells.map(cell => cell.x));
-  const minY = Math.min(...usedCells.map(cell => cell.y));
-  const maxY = Math.max(...usedCells.map(cell => cell.y));
+  function drawGrid() {
+    context.strokeStyle = getComputedStyle(document.body).color;
+    context.lineWidth = 0.03;
 
-  const pieceWidth = maxX - minX + 1;
-  const pieceHeight = maxY - minY + 1;
+    for (let x = 0; x < COLS; x++) {
+      for (let y = 0; y < ROWS; y++) {
+        context.strokeRect(x, y, 1, 1);
+      }
+    }
+  }
 
-  const offset = {
-    x: (6 - pieceWidth) / 2 - minX,
-    y: (6 - pieceHeight) / 2 - minY
-  };
+  function drawNextPiece() {
+    nextContext.fillStyle = getComputedStyle(document.body).backgroundColor;
+    nextContext.fillRect(0, 0, NEXT_SIZE, NEXT_SIZE);
 
-  drawMatrix(matrix, offset, nextContext);
-}
+    nextContext.strokeStyle = getComputedStyle(document.body).color;
+    nextContext.lineWidth = 0.03;
+
+    for (let x = 0; x < NEXT_SIZE; x++) {
+      for (let y = 0; y < NEXT_SIZE; y++) {
+        nextContext.strokeRect(x, y, 1, 1);
+      }
+    }
+
+    if (!player.nextMatrix) return;
+
+    const matrix = player.nextMatrix;
+    const usedCells = [];
+
+    matrix.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value !== 0) {
+          usedCells.push({ x, y });
+        }
+      });
+    });
+
+    const minX = Math.min(...usedCells.map(cell => cell.x));
+    const maxX = Math.max(...usedCells.map(cell => cell.x));
+    const minY = Math.min(...usedCells.map(cell => cell.y));
+    const maxY = Math.max(...usedCells.map(cell => cell.y));
+
+    const pieceWidth = maxX - minX + 1;
+    const pieceHeight = maxY - minY + 1;
+
+    const offset = {
+      x: (NEXT_SIZE - pieceWidth) / 2 - minX,
+      y: (NEXT_SIZE - pieceHeight) / 2 - minY
+    };
+
+    drawMatrix(matrix, offset, nextContext);
+  }
+
   function drawAnimatedArena() {
     if (!lineClearAnimation) {
       drawMatrix(arena, { x: 0, y: 0 });
@@ -377,19 +394,17 @@ function drawNextPiece() {
     const now = performance.now();
     const elapsed = now - lineClearAnimation.startTime;
     const progress = Math.min(elapsed / lineClearAnimation.duration, 1);
-    const fallOffset = easeIn(progress);
+    const fallOffset = easeOut(progress);
     const clearLines = lineClearAnimation.lines;
 
     arena.forEach((row, y) => {
-if (clearLines.includes(y)) {
-  if (progress < 0.55) {
-    context.globalAlpha = 1 - progress * 1.8;
-    drawMatrix([row], { x: 0, y });
-    context.globalAlpha = 1;
-  }
+      if (clearLines.includes(y)) {
+        if (progress < 0.2) {
+          context.fillStyle = getComputedStyle(document.body).color;
+          context.fillRect(0, y, COLS, 1);
+        }
 
-  return;
-}
+        return;
       }
 
       const linesBelow = clearLines.filter(lineY => lineY > y).length;
@@ -403,13 +418,15 @@ if (clearLines.includes(y)) {
     }
   }
 
-  function easeIn(t) {
-    return t * t * t;
+  function easeOut(t) {
+    return 1 - Math.pow(1 - t, 3);
   }
 
   function draw() {
+    resizeCanvases();
+
     context.fillStyle = getComputedStyle(document.body).backgroundColor;
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, COLS, ROWS);
 
     drawGrid();
     drawAnimatedArena();
@@ -525,6 +542,7 @@ if (clearLines.includes(y)) {
   playAgainButton.addEventListener("click", startGame);
   restartButton.addEventListener("click", restartGame);
 
+  resizeCanvases();
   draw();
   update();
 }
