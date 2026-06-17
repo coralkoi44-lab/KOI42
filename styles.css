@@ -208,6 +208,22 @@ body.aesthetic-mode .overlay-box {
   margin-bottom: 20px;
 }
 
+.next-piece-panel {
+  margin-bottom: 20px;
+}
+
+.next-piece-title {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 28px;
+  margin-bottom: 10px;
+  letter-spacing: -0.04em;
+}
+
+#nextPiece {
+  width: 120px;
+  height: 120px;
+}
+
 .side-buttons {
   display: flex;
   flex-direction: column;
@@ -255,27 +271,13 @@ body.aesthetic-mode .controls-box {
   line-height: 1.6;
   margin: 0 0 20px;
 }
-.next-piece-panel {
-  margin-bottom: 20px;
-}
-
-.next-piece-title {
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 28px;
-  margin-bottom: 10px;
-  letter-spacing: -0.04em;
-}
-
-#nextPiece {
-  width: 120px;
-  height: 120px;
-}
 
 .game-section:fullscreen {
   background: var(--orange);
   color: var(--charcoal);
   width: 100vw;
   height: 100vh;
+  padding: 60px 24px;
 }
 
 body.aesthetic-mode .game-section:fullscreen {
@@ -286,6 +288,10 @@ body.aesthetic-mode .game-section:fullscreen {
 .game-section:fullscreen .game-wrap {
   transform: scale(1.35);
   transform-origin: center;
+}
+
+.game-section:fullscreen h2 {
+  margin-bottom: 48px;
 }
 
 @media (max-width: 800px) {
