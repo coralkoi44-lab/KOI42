@@ -381,14 +381,15 @@ function drawNextPiece() {
     const clearLines = lineClearAnimation.lines;
 
     arena.forEach((row, y) => {
-      if (clearLines.includes(y)) {
-        if (progress < 0.55) {
-          context.globalAlpha = 1 - progress * 1.8;
-          drawMatrix([row], { x: 0, y });
-          context.globalAlpha = 1;
-        }
+if (clearLines.includes(y)) {
+  if (progress < 0.55) {
+    context.globalAlpha = 1 - progress * 1.8;
+    drawMatrix([row], { x: 0, y });
+    context.globalAlpha = 1;
+  }
 
-        return;
+  return;
+}
       }
 
       const linesBelow = clearLines.filter(lineY => lineY > y).length;
