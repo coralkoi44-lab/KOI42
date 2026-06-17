@@ -88,9 +88,9 @@ p {
 .game-wrap {
   display: flex;
   gap: 28px;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .game-board {
@@ -149,6 +149,12 @@ canvas {
   display: block;
   border: 3px solid currentColor;
   background: rgba(255, 255, 255, 0.08);
+  image-rendering: pixelated;
+}
+
+#tetris {
+  width: 240px;
+  height: 400px;
 }
 
 .overlay {
@@ -200,16 +206,22 @@ body.aesthetic-mode .overlay-box {
   font-size: 16px;
   max-width: 260px;
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .score {
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 34px;
   margin-bottom: 20px;
+  text-align: center;
 }
 
 .next-piece-panel {
   margin-bottom: 20px;
+  text-align: center;
 }
 
 .next-piece-title {
@@ -222,12 +234,14 @@ body.aesthetic-mode .overlay-box {
 #nextPiece {
   width: 120px;
   height: 120px;
+  margin: 0 auto;
 }
 
 .side-buttons {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
 }
 
 .controls-modal {
@@ -295,11 +309,12 @@ body.aesthetic-mode .game-section:fullscreen {
 
 .game-section:fullscreen .game-wrap {
   height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 36px;
-  transform: none;
+  gap: clamp(24px, 5vw, 72px);
+  flex-wrap: nowrap;
 }
 
 .game-section:fullscreen .game-board {
@@ -313,20 +328,21 @@ body.aesthetic-mode .game-section:fullscreen {
 }
 
 .game-section:fullscreen .panel {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: stretch;
   height: 96vh;
+  justify-content: center;
+  align-items: center;
 }
 
-.next-piece-panel {
-  margin-bottom: 20px;
-  text-align: center;
-}
+@media (max-width: 800px) {
+  .game-section:fullscreen .game-wrap {
+    gap: 16px;
+  }
 
-#nextPiece {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto;
+  .game-section:fullscreen .game-board {
+    height: 86vh;
+  }
+
+  .game-section:fullscreen .panel {
+    height: 86vh;
+  }
 }
