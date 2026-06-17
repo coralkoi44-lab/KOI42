@@ -326,76 +326,48 @@ export function initTetris() {
       Math.floor(arena[0].length / 2) -
       Math.floor(player.matrix[0].length / 2);
 
-    drawNextPiece();
+function drawNextPiece() {
+  nextContext.fillStyle = getComputedStyle(document.body).backgroundColor;
+  nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
 
-    if (collide(arena, player)) {
-      endGame();
+  nextContext.strokeStyle = getComputedStyle(document.body).color;
+  nextContext.lineWidth = 0.03;
+
+  for (let x = 0; x < 6; x++) {
+    for (let y = 0; y < 6; y++) {
+      nextContext.strokeRect(x, y, 1, 1);
     }
   }
 
-  function triggerImpact(type) {
-    const className = type === "big" ? "impact-big" : "impact-small";
+  if (!player.nextMatrix) return;
 
-    gameBoard.classList.remove("impact-big", "impact-small");
+  const matrix = player.nextMatrix;
 
-    void gameBoard.offsetWidth;
+  const usedCells = [];
 
-    gameBoard.classList.add(className);
-
-    setTimeout(() => {
-      gameBoard.classList.remove(className);
-    }, type === "big" ? 260 : 180);
-  }
-
-  function drawMatrix(matrix, offset, drawingContext = context) {
-    if (!matrix) return;
-
-    matrix.forEach((row, y) => {
-      row.forEach((value, x) => {
-        if (value !== 0) {
-          drawingContext.fillStyle = getComputedStyle(document.body).color;
-          drawingContext.fillRect(x + offset.x, y + offset.y, 1, 1);
-        }
-      });
+  matrix.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value !== 0) {
+        usedCells.push({ x, y });
+      }
     });
-  }
+  });
 
-  function drawGrid() {
-    context.strokeStyle = getComputedStyle(document.body).color;
-    context.lineWidth = 0.03;
+  const minX = Math.min(...usedCells.map(cell => cell.x));
+  const maxX = Math.max(...usedCells.map(cell => cell.x));
+  const minY = Math.min(...usedCells.map(cell => cell.y));
+  const maxY = Math.max(...usedCells.map(cell => cell.y));
 
-    for (let x = 0; x < 12; x++) {
-      for (let y = 0; y < 20; y++) {
-        context.strokeRect(x, y, 1, 1);
-      }
-    }
-  }
+  const pieceWidth = maxX - minX + 1;
+  const pieceHeight = maxY - minY + 1;
 
-  function drawNextPiece() {
-    nextContext.fillStyle = getComputedStyle(document.body).backgroundColor;
-    nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+  const offset = {
+    x: (6 - pieceWidth) / 2 - minX,
+    y: (6 - pieceHeight) / 2 - minY
+  };
 
-    nextContext.strokeStyle = getComputedStyle(document.body).color;
-    nextContext.lineWidth = 0.03;
-
-    for (let x = 0; x < 6; x++) {
-      for (let y = 0; y < 6; y++) {
-        nextContext.strokeRect(x, y, 1, 1);
-      }
-    }
-
-    if (!player.nextMatrix) return;
-
-    const matrix = player.nextMatrix;
-
-    const offset = {
-      x: Math.floor((6 - matrix[0].length) / 2),
-      y: Math.floor((6 - matrix.length) / 2)
-    };
-
-    drawMatrix(matrix, offset, nextContext);
-  }
-
+  drawMatrix(matrix, offset, nextContext);
+}
   function drawAnimatedArena() {
     if (!lineClearAnimation) {
       drawMatrix(arena, { x: 0, y: 0 });
