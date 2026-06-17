@@ -1,1 +1,257 @@
+:root {
+  --orange: #FFB84E;
+  --charcoal: #1B1A1B;
+}
 
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--orange);
+  color: var(--charcoal);
+  font-family: "Plus Jakarta Sans", sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+body.aesthetic-mode {
+  background: var(--charcoal);
+  color: var(--orange);
+}
+
+button {
+  background: transparent;
+  color: inherit;
+  border: 2px solid currentColor;
+  padding: 12px 18px;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+#aestheticButton {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 50;
+  background: inherit;
+}
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 24px 80px;
+}
+
+h1 {
+  font-size: clamp(48px, 10vw, 120px);
+  line-height: 0.95;
+  margin: 0;
+  letter-spacing: -0.06em;
+}
+
+p {
+  margin-top: 24px;
+  font-family: "Space Mono", monospace;
+  font-size: clamp(16px, 2vw, 24px);
+}
+
+.game-section {
+  min-height: 100vh;
+  padding: 110px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 0 currentColor;
+  overflow: hidden;
+}
+
+.game-section h2 {
+  font-size: clamp(40px, 8vw, 96px);
+  margin: 0 0 24px;
+  letter-spacing: -0.05em;
+}
+
+.game-wrap {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.game-board {
+  position: relative;
+}
+
+.game-board.impact-small {
+  animation: impactSmall 0.16s ease;
+}
+
+.game-board.impact-big {
+  animation: impactBig 0.24s ease;
+}
+
+@keyframes impactSmall {
+  0% {
+    transform: translateY(0);
+  }
+
+  35% {
+    transform: translateY(5px);
+  }
+
+  65% {
+    transform: translateY(-2px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes impactBig {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  20% {
+    transform: translate(-4px, 7px) rotate(-1deg);
+  }
+
+  40% {
+    transform: translate(5px, -3px) rotate(1deg);
+  }
+
+  65% {
+    transform: translate(-2px, 4px) rotate(-0.5deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+canvas {
+  display: block;
+  border: 3px solid currentColor;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.overlay {
+  position: absolute;
+  inset: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  backdrop-filter: blur(2px);
+  padding: 20px;
+  z-index: 5;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay-box {
+  background: var(--orange);
+  color: var(--charcoal);
+  border: 2px solid currentColor;
+  padding: 22px;
+  max-width: 200px;
+}
+
+body.aesthetic-mode .overlay-box {
+  background: var(--charcoal);
+  color: var(--orange);
+}
+
+.overlay-title {
+  font-size: 28px;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  margin-bottom: 12px;
+}
+
+.overlay-text {
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.panel {
+  font-family: "Space Mono", monospace;
+  font-size: 16px;
+  max-width: 260px;
+  line-height: 1.5;
+}
+
+.score {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 34px;
+  margin-bottom: 20px;
+}
+
+.side-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.controls-modal {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, currentColor 18%, transparent);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+}
+
+.controls-modal.hidden {
+  display: none;
+}
+
+.controls-box {
+  background: var(--orange);
+  color: var(--charcoal);
+  border: 2px solid currentColor;
+  padding: 28px;
+  max-width: 360px;
+  width: 100%;
+}
+
+body.aesthetic-mode .controls-box {
+  background: var(--charcoal);
+  color: var(--orange);
+}
+
+.controls-box h3 {
+  margin: 0 0 16px;
+  font-size: 36px;
+  letter-spacing: -0.05em;
+}
+
+.controls-box p {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
