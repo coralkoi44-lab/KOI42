@@ -277,7 +277,11 @@ body.aesthetic-mode .controls-box {
   color: var(--charcoal);
   width: 100vw;
   height: 100vh;
-  padding: 60px 24px;
+  min-height: 100vh;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 body.aesthetic-mode .game-section:fullscreen {
@@ -285,17 +289,44 @@ body.aesthetic-mode .game-section:fullscreen {
   color: var(--orange);
 }
 
-.game-section:fullscreen .game-wrap {
-  transform: scale(1.35);
-  transform-origin: center;
-}
-
 .game-section:fullscreen h2 {
-  margin-bottom: 48px;
+  display: none;
 }
 
-@media (max-width: 800px) {
-  .game-section:fullscreen .game-wrap {
-    transform: scale(1);
-  }
+.game-section:fullscreen .game-wrap {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  transform: none;
+}
+
+.game-section:fullscreen .game-board {
+  height: 96vh;
+  aspect-ratio: 12 / 20;
+}
+
+.game-section:fullscreen #tetris {
+  width: 100%;
+  height: 100%;
+}
+
+.game-section:fullscreen .panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  height: 96vh;
+}
+
+.next-piece-panel {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+#nextPiece {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
 }
