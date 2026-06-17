@@ -252,13 +252,9 @@ export function initTetris() {
     return lines;
   }
 
-  function startLineClearAnimation(lines) {
-    lineClearAnimation = {
-      lines,
-      startTime: performance.now(),
-      duration: 150
-    };
-  }
+function startLineClearAnimation(lines) {
+  finishLineClear(lines);
+}
 
   function finishLineClear(lines) {
     const clearedSet = new Set(lines);
