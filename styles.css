@@ -255,3 +255,41 @@ body.aesthetic-mode .controls-box {
   line-height: 1.6;
   margin: 0 0 20px;
 }
+.next-piece-panel {
+  margin-bottom: 20px;
+}
+
+.next-piece-title {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 28px;
+  margin-bottom: 10px;
+  letter-spacing: -0.04em;
+}
+
+#nextPiece {
+  width: 120px;
+  height: 120px;
+}
+
+.game-section:fullscreen {
+  background: var(--orange);
+  color: var(--charcoal);
+  width: 100vw;
+  height: 100vh;
+}
+
+body.aesthetic-mode .game-section:fullscreen {
+  background: var(--charcoal);
+  color: var(--orange);
+}
+
+.game-section:fullscreen .game-wrap {
+  transform: scale(1.35);
+  transform-origin: center;
+}
+
+@media (max-width: 800px) {
+  .game-section:fullscreen .game-wrap {
+    transform: scale(1);
+  }
+}
