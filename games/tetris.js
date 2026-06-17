@@ -281,7 +281,7 @@ export function initTetris() {
     lineClearAnimation = {
       lines,
       startTime: performance.now(),
-      duration: 360
+      duration: 100
     };
   }
 
