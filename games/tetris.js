@@ -22,14 +22,8 @@ export function initTetris() {
   const COLS = 12;
   const ROWS = 20;
   const NEXT_SIZE = 6;
-  const GRID_LINE_WIDTH = 0.15;
-
-  const piecePalettes = {
-    bee: ["#FF9A3B", "#FF9029", "#FFA24B"],
-    "anti-bee": ["#0065C4", "#006FD6", "#005DB4"],
-    heather: ["#FF94D4", "#FFBEE5", "#FFA0DC"],
-    "anti-heather": ["#006B2B", "#00411A", "#005F23"]
-  };
+  const CANVAS_BORDER_WIDTH = 3;
+  const BLOCK_FILL_OVERLAP = 0.03;
 
   const arena = createMatrix(COLS, ROWS);
 
@@ -319,44 +313,122 @@ export function initTetris() {
   }
 
   function getPieceColor(value) {
+    const palette = getSevenColorPalette();
+    return palette[(value - 1) % palette.length];
+  }
+
+  function getSevenColorPalette() {
+    const anchors = getThemeAnchorColors();
+
+    return [
+      anchors[0],
+      anchors[1],
+      anchors[2],
+      mixColors(anchors[0], anchors[1], 0.5),
+      mixColors(anchors[1], anchors[2], 0.5),
+      mixColors(anchors[0], anchors[1], 0.28),
+      mixColors(anchors[1], anchors[2], 0.72)
+    ];
+  }
+
+  function getThemeAnchorColors() {
+    const style = getComputedStyle(document.body);
     const themeName = document.body.dataset.theme || "bee";
 
     if (themeName === "custom") {
-      const customColors = [
-        getComputedStyle(document.body).getPropertyValue("--custom-text").trim(),
-        getComputedStyle(document.body).getPropertyValue("--custom-bg").trim(),
-        getComputedStyle(document.body).color
+      const bg = parseColor(style.backgroundColor);
+      const text = parseColor(style.color);
+
+      return [
+        formatRgb(mixRgb(text, bg, 0.12)),
+        formatRgb(mixRgb(text, bg, 0.32)),
+        formatRgb(mixRgb(text, bg, 0.52))
       ];
-      return customColors[(value - 1) % customColors.length];
     }
 
-    const palette = piecePalettes[themeName] || piecePalettes.bee;
-    return palette[(value - 1) % palette.length];
+    return [
+      style.getPropertyValue("--piece-a").trim(),
+      style.getPropertyValue("--piece-b").trim(),
+      style.getPropertyValue("--piece-c").trim()
+    ];
+  }
+
+  function mixColors(colorA, colorB, amount) {
+    return formatRgb(mixRgb(parseColor(colorA), parseColor(colorB), amount));
+  }
+
+  function parseColor(color) {
+    const normalized = color.trim();
+
+    if (normalized.startsWith("#")) {
+      const hex = normalized.slice(1);
+      const fullHex = hex.length === 3
+        ? hex.split("").map(char => char + char).join("")
+        : hex;
+
+      return {
+        r: parseInt(fullHex.slice(0, 2), 16),
+        g: parseInt(fullHex.slice(2, 4), 16),
+        b: parseInt(fullHex.slice(4, 6), 16)
+      };
+    }
+
+    const channels = normalized.match(/\d+(?:\.\d+)?/g)?.map(Number) || [255, 255, 255];
+
+    return {
+      r: channels[0],
+      g: channels[1],
+      b: channels[2]
+    };
+  }
+
+  function mixRgb(colorA, colorB, amount) {
+    return {
+      r: Math.round(colorA.r + (colorB.r - colorA.r) * amount),
+      g: Math.round(colorA.g + (colorB.g - colorA.g) * amount),
+      b: Math.round(colorA.b + (colorB.b - colorA.b) * amount)
+    };
+  }
+
+  function formatRgb(color) {
+    return `rgb(${color.r}, ${color.g}, ${color.b})`;
   }
 
   function getLineColor() {
     return getComputedStyle(document.body).color;
   }
 
-  function drawMatrix(matrix, offset, drawingContext = context) {
+  function getGridLineWidth(drawingCanvas, cols) {
+    const rect = drawingCanvas.getBoundingClientRect();
+    const cellWidth = rect.width / cols;
+    return CANVAS_BORDER_WIDTH / cellWidth;
+  }
+
+  function drawMatrix(matrix, offset, drawingContext = context, drawingCanvas = canvas, cols = COLS) {
     if (!matrix) return;
 
     matrix.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value !== 0) {
           drawingContext.fillStyle = getPieceColor(value);
-          drawingContext.fillRect(x + offset.x, y + offset.y, 1, 1);
+          drawingContext.fillRect(
+            x + offset.x - BLOCK_FILL_OVERLAP,
+            y + offset.y - BLOCK_FILL_OVERLAP,
+            1 + BLOCK_FILL_OVERLAP * 2,
+            1 + BLOCK_FILL_OVERLAP * 2
+          );
         }
       });
     });
 
-    drawPieceOutlines(matrix, offset, drawingContext);
+    drawPieceOutlines(matrix, offset, drawingContext, drawingCanvas, cols);
   }
 
-  function drawPieceOutlines(matrix, offset, drawingContext = context) {
+  function drawPieceOutlines(matrix, offset, drawingContext = context, drawingCanvas = canvas, cols = COLS) {
     drawingContext.strokeStyle = getLineColor();
-    drawingContext.lineWidth = GRID_LINE_WIDTH;
+    drawingContext.lineWidth = getGridLineWidth(drawingCanvas, cols);
     drawingContext.lineCap = "square";
+    drawingContext.lineJoin = "miter";
     drawingContext.beginPath();
 
     matrix.forEach((row, y) => {
@@ -399,21 +471,29 @@ export function initTetris() {
     drawingContext.stroke();
   }
 
-  function drawGrid(drawingContext, cols, rows) {
+  function drawGrid(drawingContext, drawingCanvas, cols, rows) {
     drawingContext.strokeStyle = getLineColor();
-    drawingContext.lineWidth = GRID_LINE_WIDTH;
+    drawingContext.lineWidth = getGridLineWidth(drawingCanvas, cols);
+    drawingContext.lineCap = "square";
+    drawingContext.beginPath();
 
-    for (let x = 0; x < cols; x++) {
-      for (let y = 0; y < rows; y++) {
-        drawingContext.strokeRect(x, y, 1, 1);
-      }
+    for (let x = 0; x <= cols; x++) {
+      drawingContext.moveTo(x, 0);
+      drawingContext.lineTo(x, rows);
     }
+
+    for (let y = 0; y <= rows; y++) {
+      drawingContext.moveTo(0, y);
+      drawingContext.lineTo(cols, y);
+    }
+
+    drawingContext.stroke();
   }
 
   function drawNextPiece() {
     nextContext.fillStyle = getComputedStyle(document.body).backgroundColor;
     nextContext.fillRect(0, 0, NEXT_SIZE, NEXT_SIZE);
-    drawGrid(nextContext, NEXT_SIZE, NEXT_SIZE);
+    drawGrid(nextContext, nextCanvas, NEXT_SIZE, NEXT_SIZE);
 
     if (!player.nextMatrix) return;
 
@@ -437,11 +517,11 @@ export function initTetris() {
     const pieceHeight = maxY - minY + 1;
 
     const offset = {
-      x: (NEXT_SIZE - pieceWidth) / 2 - minX,
-      y: (NEXT_SIZE - pieceHeight) / 2 - minY
+      x: Math.round((NEXT_SIZE - pieceWidth) / 2 - minX),
+      y: Math.round((NEXT_SIZE - pieceHeight) / 2 - minY)
     };
 
-    drawMatrix(matrix, offset, nextContext);
+    drawMatrix(matrix, offset, nextContext, nextCanvas, NEXT_SIZE);
   }
 
   function drawAnimatedArena() {
@@ -487,7 +567,7 @@ export function initTetris() {
     context.fillStyle = getComputedStyle(document.body).backgroundColor;
     context.fillRect(0, 0, COLS, ROWS);
 
-    drawGrid(context, COLS, ROWS);
+    drawGrid(context, canvas, COLS, ROWS);
     drawAnimatedArena();
 
     if (gameStarted && !gameOver && !lineClearAnimation) {
