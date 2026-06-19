@@ -1,7 +1,6 @@
 # KOI42
 
-A small personal website with a themed homepage and a playable Tetris section.
-
+My website BITCH!
 ## Files
 
 - `index.html` contains the page structure, theme buttons, custom theme controls, and Tetris UI.
