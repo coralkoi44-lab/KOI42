@@ -6,41 +6,26 @@
   --custom-text: #FFACDE;
   --bg: var(--bee-orange);
   --text: var(--bee-black);
-  --piece-a: #FF9A3B;
-  --piece-b: #FF9029;
-  --piece-c: #FFA24B;
 }
 
 body[data-theme="bee"] {
   --bg: var(--bee-orange);
   --text: var(--bee-black);
-  --piece-a: #FF9A3B;
-  --piece-b: #FF9029;
-  --piece-c: #FFA24B;
 }
 
 body[data-theme="anti-bee"] {
   --bg: var(--bee-black);
   --text: var(--bee-orange);
-  --piece-a: #0065C4;
-  --piece-b: #006FD6;
-  --piece-c: #005DB4;
 }
 
 body[data-theme="heather"] {
   --bg: var(--heather-pink);
   --text: var(--bee-black);
-  --piece-a: #FF94D4;
-  --piece-b: #FFBEE5;
-  --piece-c: #FFA0DC;
 }
 
 body[data-theme="anti-heather"] {
   --bg: var(--bee-black);
   --text: var(--heather-pink);
-  --piece-a: #006B2B;
-  --piece-b: #00411A;
-  --piece-c: #005F23;
 }
 
 body[data-theme="custom"] {
@@ -365,7 +350,7 @@ canvas {
   line-height: 1.5;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
 }
 
@@ -463,17 +448,20 @@ canvas {
 }
 
 .game-section:fullscreen .game-wrap {
+  position: relative;
   height: 100vh;
   width: 100vw;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr minmax(0, auto) 1fr;
   align-items: center;
-  justify-content: center;
-  gap: clamp(24px, 5vw, 72px);
-  flex-wrap: nowrap;
+  justify-items: center;
+  gap: 0;
 }
 
 .game-section:fullscreen .game-board {
-  height: 96vh;
+  grid-column: 2;
+  height: min(96vh, calc((100vw - 220px) * 20 / 12));
+  max-height: 96vh;
   aspect-ratio: 12 / 20;
 }
 
@@ -483,22 +471,27 @@ canvas {
 }
 
 .game-section:fullscreen .panel {
-  width: clamp(140px, 18vw, 220px);
+  grid-column: 3;
+  justify-self: start;
+  width: clamp(140px, 14vw, 180px);
+  margin-left: clamp(24px, 4vw, 56px);
   height: 96vh;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
 }
 
 @media (max-width: 800px) {
   .game-section:fullscreen .game-wrap {
-    gap: 16px;
+    grid-template-columns: 1fr minmax(0, auto) 1fr;
   }
 
   .game-section:fullscreen .game-board {
-    height: 86vh;
+    height: min(86vh, calc((100vw - 150px) * 20 / 12));
   }
 
   .game-section:fullscreen .panel {
+    width: 120px;
     height: 86vh;
+    margin-left: 16px;
   }
 }
