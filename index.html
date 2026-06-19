@@ -38,12 +38,16 @@
       <div class="custom-theme-picker">
         <div class="custom-theme-title">custom</div>
         <label>
-          bg
-          <input type="color" id="customBgColor" value="#1B1A1B">
+          primary
+          <input type="color" id="customPrimaryColor" value="#000000">
         </label>
         <label>
-          text
-          <input type="color" id="customTextColor" value="#FFACDE">
+          secondary
+          <input type="color" id="customSecondaryColor" value="#FFFFFF">
+        </label>
+        <label>
+          accent
+          <input type="color" id="customAccentColor" value="#777777">
         </label>
         <button id="applyCustomTheme">apply custom</button>
       </div>
@@ -64,7 +68,6 @@
     <div class="game-wrap">
 
       <div class="game-board" id="gameBoard">
-
         <canvas id="tetris" width="240" height="400"></canvas>
 
         <div class="overlay" id="startScreen">
@@ -82,11 +85,9 @@
             <button id="playAgainButton">PLAY AGAIN</button>
           </div>
         </div>
-
       </div>
 
       <div class="panel">
-
         <div class="score">
           score:
           <span id="score">0</span>
@@ -102,7 +103,6 @@
           <button id="fullscreenButton">FULLSCREEN</button>
           <button id="restartButton">RESTART</button>
         </div>
-
       </div>
 
     </div>
@@ -110,9 +110,7 @@
   </section>
 
   <div class="controls-modal hidden" id="controlsModal">
-
     <div class="controls-box">
-
       <h3>controls</h3>
 
       <p>
@@ -125,9 +123,7 @@
       </p>
 
       <button id="closeControlsButton">CLOSE</button>
-
     </div>
-
   </div>
 
   <script type="module" src="main.js"></script>
