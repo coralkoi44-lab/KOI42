@@ -1,5 +1,4 @@
 export function initTetris() {
-  const aestheticButton = document.getElementById("aestheticButton");
   const gameBoard = document.getElementById("gameBoard");
   const gameSection = document.getElementById("gameSection");
   const startScreen = document.getElementById("startScreen");
@@ -24,6 +23,13 @@ export function initTetris() {
   const ROWS = 20;
   const NEXT_SIZE = 6;
 
+  const piecePalettes = {
+    bee: ["#FF9A3B", "#FF8E43", "#FFAC5F", "#FF8819", "#F18948", "#F0874F", "#FF8819"],
+    "anti-bee": ["#0065C4", "#0071BC", "#0053A0", "#0077E6", "#0E76B7", "#0F78B0", "#0077E6"],
+    gub: ["#FF78C9", "#FFA5F3", "#FFA5C8", "#FF8AB7", "#FFC0EC", "#F7C0FF", "#FF78C9"],
+    "anti-gub": ["#008736", "#005A0C", "#005A37", "#007548", "#003F13", "#083F00", "#008736"]
+  };
+
   const arena = createMatrix(COLS, ROWS);
 
   const player = {
@@ -39,10 +45,6 @@ export function initTetris() {
   let dropInterval = 700;
   let lastTime = 0;
   let lineClearAnimation = null;
-
-  aestheticButton.addEventListener("click", () => {
-    document.body.classList.toggle("aesthetic-mode");
-  });
 
   controlsButton.addEventListener("click", () => {
     controlsModal.classList.remove("hidden");
@@ -252,9 +254,9 @@ export function initTetris() {
     return lines;
   }
 
-function startLineClearAnimation(lines) {
-  finishLineClear(lines);
-}
+  function startLineClearAnimation(lines) {
+    finishLineClear(lines);
+  }
 
   function finishLineClear(lines) {
     const clearedSet = new Set(lines);
@@ -315,42 +317,28 @@ function startLineClearAnimation(lines) {
     }, type === "big" ? 260 : 180);
   }
 
+  function getPieceColor(value) {
+    const themeName = document.body.dataset.theme || "bee";
+    const palette = piecePalettes[themeName] || piecePalettes.bee;
+    return palette[(value - 1) % palette.length];
+  }
+
   function drawMatrix(matrix, offset, drawingContext = context) {
     if (!matrix) return;
 
     matrix.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value !== 0) {
-          drawingContext.fillStyle = getComputedStyle(document.body).color;
+          drawingContext.fillStyle = getPieceColor(value);
           drawingContext.fillRect(x + offset.x, y + offset.y, 1, 1);
         }
       });
     });
   }
 
-  function drawGrid() {
-    context.strokeStyle = getComputedStyle(document.body).color;
-    context.lineWidth = 0.03;
-
-    for (let x = 0; x < COLS; x++) {
-      for (let y = 0; y < ROWS; y++) {
-        context.strokeRect(x, y, 1, 1);
-      }
-    }
-  }
-
   function drawNextPiece() {
     nextContext.fillStyle = getComputedStyle(document.body).backgroundColor;
     nextContext.fillRect(0, 0, NEXT_SIZE, NEXT_SIZE);
-
-    nextContext.strokeStyle = getComputedStyle(document.body).color;
-    nextContext.lineWidth = 0.03;
-
-    for (let x = 0; x < NEXT_SIZE; x++) {
-      for (let y = 0; y < NEXT_SIZE; y++) {
-        nextContext.strokeRect(x, y, 1, 1);
-      }
-    }
 
     if (!player.nextMatrix) return;
 
@@ -424,7 +412,6 @@ function startLineClearAnimation(lines) {
     context.fillStyle = getComputedStyle(document.body).backgroundColor;
     context.fillRect(0, 0, COLS, ROWS);
 
-    drawGrid();
     drawAnimatedArena();
 
     if (gameStarted && !gameOver && !lineClearAnimation) {
