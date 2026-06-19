@@ -104,7 +104,7 @@ export function initTetris() {
   }
 
   function hasCell(cell) {
-    return cell !== null && cell !== 0;
+    return cell !== null && cell !== undefined && cell !== 0;
   }
 
   function collide(arena, player) {
