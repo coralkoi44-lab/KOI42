@@ -336,9 +336,21 @@ export function initTetris() {
     });
   }
 
+  function drawGrid(drawingContext, cols, rows) {
+    drawingContext.strokeStyle = getComputedStyle(document.body).color;
+    drawingContext.lineWidth = 0.03;
+
+    for (let x = 0; x < cols; x++) {
+      for (let y = 0; y < rows; y++) {
+        drawingContext.strokeRect(x, y, 1, 1);
+      }
+    }
+  }
+
   function drawNextPiece() {
     nextContext.fillStyle = getComputedStyle(document.body).backgroundColor;
     nextContext.fillRect(0, 0, NEXT_SIZE, NEXT_SIZE);
+    drawGrid(nextContext, NEXT_SIZE, NEXT_SIZE);
 
     if (!player.nextMatrix) return;
 
@@ -412,6 +424,7 @@ export function initTetris() {
     context.fillStyle = getComputedStyle(document.body).backgroundColor;
     context.fillRect(0, 0, COLS, ROWS);
 
+    drawGrid(context, COLS, ROWS);
     drawAnimatedArena();
 
     if (gameStarted && !gameOver && !lineClearAnimation) {
