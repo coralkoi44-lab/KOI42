@@ -1,7 +1,9 @@
 :root {
   --bee-orange: #FFB84E;
   --bee-black: #1B1A1B;
-  --gub-pink: #FFACDE;
+  --heather-pink: #FFACDE;
+  --custom-bg: #1B1A1B;
+  --custom-text: #FFACDE;
   --bg: var(--bee-orange);
   --text: var(--bee-black);
 }
@@ -16,14 +18,19 @@ body[data-theme="anti-bee"] {
   --text: var(--bee-orange);
 }
 
-body[data-theme="gub"] {
-  --bg: var(--gub-pink);
+body[data-theme="heather"] {
+  --bg: var(--heather-pink);
   --text: var(--bee-black);
 }
 
-body[data-theme="anti-gub"] {
+body[data-theme="anti-heather"] {
   --bg: var(--bee-black);
-  --text: var(--gub-pink);
+  --text: var(--heather-pink);
+}
+
+body[data-theme="custom"] {
+  --bg: var(--custom-bg);
+  --text: var(--custom-text);
 }
 
 * {
@@ -94,6 +101,10 @@ button:hover {
   animation: aestheticPanelPop 0.18s ease both;
 }
 
+.aesthetic-panel.closing {
+  animation: aestheticPanelAway 0.18s ease both;
+}
+
 @keyframes aestheticPanelPop {
   0% {
     opacity: 0;
@@ -103,6 +114,18 @@ button:hover {
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes aestheticPanelAway {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
   }
 }
 
@@ -133,6 +156,41 @@ button:hover {
 .theme-option.active {
   background: var(--text);
   color: var(--bg);
+}
+
+.custom-theme-picker {
+  border-top: 2px solid currentColor;
+  margin-top: 12px;
+  padding-top: 12px;
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+}
+
+.custom-theme-title {
+  margin-bottom: 8px;
+}
+
+.custom-theme-picker label {
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.custom-theme-picker input[type="color"] {
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid currentColor;
+  background: transparent;
+}
+
+#applyCustomTheme {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
 }
 
 .hero {
