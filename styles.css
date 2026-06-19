@@ -17,13 +17,13 @@ body[data-theme="anti-bee"] {
 }
 
 body[data-theme="gub"] {
-  --bg: var(--bee-black);
-  --text: var(--gub-pink);
+  --bg: var(--gub-pink);
+  --text: var(--bee-black);
 }
 
 body[data-theme="anti-gub"] {
-  --bg: var(--gub-pink);
-  --text: var(--bee-black);
+  --bg: var(--bee-black);
+  --text: var(--gub-pink);
 }
 
 * {
@@ -65,6 +65,19 @@ button:hover {
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
+  animation: aestheticSlideIn 0.55s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+}
+
+@keyframes aestheticSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-42px) rotate(-2deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg);
+  }
 }
 
 #aestheticButton {
@@ -72,12 +85,25 @@ button:hover {
 }
 
 .aesthetic-panel {
-  width: 190px;
+  width: 260px;
   background: var(--bg);
   color: var(--text);
   border: 2px solid currentColor;
   padding: 10px;
   box-shadow: 8px 8px 0 currentColor;
+  animation: aestheticPanelPop 0.18s ease both;
+}
+
+@keyframes aestheticPanelPop {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .aesthetic-panel.hidden {
@@ -90,9 +116,15 @@ button:hover {
   margin-bottom: 10px;
 }
 
+.theme-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .theme-option {
   width: 100%;
-  margin-top: 8px;
   padding: 10px 12px;
   text-align: left;
   background: transparent;
