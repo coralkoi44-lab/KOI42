@@ -66,7 +66,8 @@ button {
 }
 
 button:hover,
-button:focus-visible {
+button:focus-visible,
+button.active {
   background: var(--accent);
   transform: translateY(-2px);
   box-shadow: 4px 4px 0 currentColor;
@@ -156,17 +157,6 @@ p,
   width: 100%;
   padding: 10px 12px;
   text-align: left;
-}
-
-.theme-option.active,
-.settings-tab.active {
-  background: var(--accent);
-  color: var(--text);
-}
-
-.theme-option.active:hover,
-.settings-tab.active:hover {
-  background: transparent;
 }
 
 .custom-theme-picker {
@@ -450,7 +440,7 @@ canvas {
   display: none;
   border: 2px solid currentColor;
   padding: 14px;
-  background: color-mix(in srgb, var(--bg) 20%, transparent);
+  background: var(--bg);
 }
 
 .settings-panel.active { display: block; }
@@ -488,10 +478,7 @@ canvas {
   color: var(--text);
 }
 
-.toggle-row input:checked {
-  animation: toggleBounce 0.24s ease;
-}
-
+.toggle-row input:checked { animation: toggleBounce 0.24s ease; }
 .toggle-row input:checked::after { content: "X"; }
 .toggle-row input:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 
@@ -521,14 +508,14 @@ canvas {
   to { opacity: 0; transform: translateY(16px) scale(0.97); }
 }
 
-.game-section.enter-fullscreen {
-  animation: fullscreenPulse 0.4s ease;
+.game-section.enter-fullscreen .game-wrap {
+  animation: fullscreenSettle 0.42s ease both;
 }
 
-@keyframes fullscreenPulse {
-  0% { filter: brightness(1); }
-  45% { filter: brightness(1.08); }
-  100% { filter: brightness(1); }
+@keyframes fullscreenSettle {
+  0% { opacity: 0.9; transform: scale(0.975); }
+  60% { opacity: 1; transform: scale(1.01); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 .game-section:fullscreen {
