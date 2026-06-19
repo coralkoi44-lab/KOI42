@@ -19,7 +19,10 @@ export function initTetris() {
   const nextCanvas = document.getElementById("nextPiece");
   const scoreElement = document.getElementById("score");
   const levelElement = document.getElementById("level");
+  const speedElement = document.getElementById("speed");
   const linesElement = document.getElementById("lines");
+  const levelStat = document.getElementById("levelStat");
+  const speedStat = document.getElementById("speedStat");
   const actionText = document.getElementById("actionText");
 
   const context = canvas.getContext("2d");
@@ -29,6 +32,7 @@ export function initTetris() {
   const NEXT_SIZE = 6;
   const BORDER_WIDTH = 3;
   const FILL_OVERLAP = 0.03;
+  const BASE_DROP_INTERVAL = 700;
   const PIECES = ["T", "J", "L", "O", "S", "Z", "I"];
   const COLORS = { T: 1, O: 2, L: 3, J: 4, I: 5, S: 6, Z: 7 };
 
@@ -54,7 +58,7 @@ export function initTetris() {
   let paused = false;
   let resumeOnNextInteraction = false;
   let dropCounter = 0;
-  let dropInterval = 700;
+  let dropInterval = BASE_DROP_INTERVAL;
   let lastTime = 0;
   let lineClearAnimation = null;
   let pieceIdCounter = 1;
@@ -67,10 +71,20 @@ export function initTetris() {
   pauseButton.addEventListener("click", togglePause);
   settingsButton.addEventListener("click", openSettingsModal);
   closeSettingsButton.addEventListener("click", closeSettingsModal);
-  gameBoard.addEventListener("pointerdown", resumeFromInteraction);
+
+  gameBoard.addEventListener("pointerdown", () => {
+    if (paused) resumeGame();
+  });
+
+  settingsModal.addEventListener("click", (event) => {
+    if (event.target === settingsModal) closeSettingsModal();
+  });
+
   speedIncreaseToggle.addEventListener("change", () => {
     speedIncreaseEnabled = speedIncreaseToggle.checked;
+    refreshLevelFromLines();
     updateSpeed();
+    updateStats();
   });
 
   settingsTabs.forEach((tab) => {
@@ -185,7 +199,6 @@ export function initTetris() {
 
   function playerRotate(direction) {
     if (!canMove()) return;
-    resumeFromInteraction();
     const startX = player.pos.x;
     let offset = 1;
     rotate(player.matrix, direction);
@@ -204,7 +217,6 @@ export function initTetris() {
 
   function playerMove(direction) {
     if (!canMove()) return;
-    resumeFromInteraction();
     player.pos.x += direction;
     if (collide(arena, player)) player.pos.x -= direction;
     else player.lastMoveWasRotate = false;
@@ -212,14 +224,10 @@ export function initTetris() {
 
   function playerDrop(isManual = false) {
     if (!canMove()) return;
-    if (isManual) resumeFromInteraction();
     player.pos.y++;
     if (collide(arena, player)) {
       player.pos.y--;
       lockPiece(isManual ? "small" : null);
-    } else if (isManual) {
-      player.score += 1;
-      updateStats();
     }
     dropCounter = 0;
   }
@@ -276,6 +284,7 @@ export function initTetris() {
     let base = 0;
     let difficult = false;
     let label = "";
+
     if (spin === "tspin") {
       base = [400, 800, 1200, 1600][lineCount] || 0;
       difficult = lineCount > 0;
@@ -289,10 +298,12 @@ export function initTetris() {
       difficult = lineCount === 4;
       label = lineCount === 0 ? "" : lineCount === 4 ? "tetris" : lineName(lineCount);
     }
+
     if (difficult && player.backToBack) {
       base = Math.floor(base * 1.5);
       label = `B2B ${label}`;
     }
+
     if (lineCount > 0) {
       player.combo += 1;
       player.lines += lineCount;
@@ -302,16 +313,19 @@ export function initTetris() {
       player.combo = -1;
       player.score += base * level;
     }
+
     if (difficult) player.backToBack = true;
     else if (lineCount > 0) player.backToBack = false;
+
     if (lineCount > 0 && isPerfectClear()) {
       const perfectClearBonus = [0, 800, 1200, 1800, 2000][lineCount] || 800;
       player.score += perfectClearBonus * level;
       label = `${label} perfect clear`;
     }
-    player.level = speedIncreaseEnabled ? Math.floor(player.lines / 10) + 1 : 1;
+
+    refreshLevelFromLines();
     updateSpeed();
-    actionText.innerText = label || (spin ? spin : "locked");
+    actionText.innerText = label || "ready";
   }
 
   function lineName(count) {
@@ -322,8 +336,12 @@ export function initTetris() {
     return arena.every(row => row.every(cell => !hasCell(cell)));
   }
 
+  function refreshLevelFromLines() {
+    player.level = speedIncreaseEnabled ? Math.floor(player.lines / 10) + 1 : 1;
+  }
+
   function updateSpeed() {
-    dropInterval = speedIncreaseEnabled ? Math.max(90, 700 - (player.level - 1) * 55) : 700;
+    dropInterval = speedIncreaseEnabled ? Math.max(90, BASE_DROP_INTERVAL - (player.level - 1) * 55) : BASE_DROP_INTERVAL;
   }
 
   function playerReset() {
@@ -438,6 +456,10 @@ export function initTetris() {
     scoreElement.innerText = player.score;
     levelElement.innerText = player.level;
     linesElement.innerText = player.lines;
+    speedElement.innerText = `${(BASE_DROP_INTERVAL / dropInterval).toFixed(1)}x`;
+    levelStat.classList.toggle("is-hidden", !speedIncreaseEnabled);
+    speedStat.classList.toggle("is-hidden", !speedIncreaseEnabled);
+    actionText.classList.toggle("is-hidden", !speedIncreaseEnabled);
   }
 
   function startGame() {
@@ -460,10 +482,11 @@ export function initTetris() {
     lineClearAnimation = null;
     dropCounter = 0;
     lastTime = 0;
-    actionText.innerText = "go";
+    actionText.innerText = "ready";
     startScreen.classList.add("hidden");
     pauseScreen.classList.add("hidden");
     gameOverScreen.classList.add("hidden");
+    refreshLevelFromLines();
     updateSpeed();
     updateStats();
     playerReset();
@@ -506,10 +529,6 @@ export function initTetris() {
     else pauseGame(false);
   }
 
-  function resumeFromInteraction() {
-    if (paused && resumeOnNextInteraction) resumeGame();
-  }
-
   function openSettingsModal() {
     settingsModal.classList.remove("hidden", "closing");
     settingsModal.setAttribute("aria-hidden", "false");
@@ -517,6 +536,7 @@ export function initTetris() {
   }
 
   function closeSettingsModal() {
+    if (settingsModal.classList.contains("hidden")) return;
     settingsModal.classList.add("closing");
   }
 
@@ -553,6 +573,7 @@ export function initTetris() {
   }
 
   resizeCanvases();
+  updateSpeed();
   updateStats();
   draw();
   update();
