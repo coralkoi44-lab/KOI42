@@ -55,21 +55,27 @@ body {
 }
 
 button {
-  background: var(--accent);
+  background: transparent;
   color: inherit;
   border: 2px solid currentColor;
   padding: 12px 18px;
   font-family: "Plus Jakarta Sans", sans-serif;
   font-weight: 800;
   cursor: pointer;
-  transition: transform 0.16s ease, background 0.16s ease, filter 0.16s ease;
+  transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
 }
 
 button:hover,
 button:focus-visible {
-  background: transparent;
-  transform: translateY(-1px);
+  background: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 currentColor;
   filter: brightness(1.02);
+}
+
+button:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 1px 1px 0 currentColor;
 }
 
 .aesthetic-menu-wrap {
@@ -92,7 +98,7 @@ button:focus-visible {
 .aesthetic-panel,
 .overlay-box,
 .settings-box {
-  background: var(--bg);
+  background: var(--accent);
   color: var(--text);
 }
 
@@ -154,8 +160,13 @@ p,
 
 .theme-option.active,
 .settings-tab.active {
-  background: transparent;
+  background: var(--accent);
   color: var(--text);
+}
+
+.theme-option.active:hover,
+.settings-tab.active:hover {
+  background: transparent;
 }
 
 .custom-theme-picker {
@@ -241,6 +252,7 @@ p {
 .game-board { position: relative; }
 .game-board.impact-small { animation: impactSmall 0.16s ease; }
 .game-board.impact-big { animation: impactBig 0.24s ease; }
+.game-board.resume-pop { animation: resumePop 0.28s ease; }
 
 @keyframes impactSmall {
   35% { transform: translateY(5px); }
@@ -251,6 +263,12 @@ p {
   20% { transform: translate(-4px, 7px) rotate(-1deg); }
   40% { transform: translate(5px, -3px) rotate(1deg); }
   65% { transform: translate(-2px, 4px) rotate(-0.5deg); }
+}
+
+@keyframes resumePop {
+  0% { transform: scale(0.985); }
+  55% { transform: scale(1.015); }
+  100% { transform: scale(1); }
 }
 
 canvas {
@@ -272,7 +290,7 @@ canvas {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: color-mix(in srgb, var(--text) 12%, transparent);
+  background: color-mix(in srgb, var(--accent) 48%, transparent);
   backdrop-filter: blur(2px);
   padding: 20px;
   z-index: 5;
@@ -282,6 +300,12 @@ canvas {
   border: 2px solid currentColor;
   padding: 22px;
   max-width: 210px;
+  animation: overlayBoxPop 0.22s ease both;
+}
+
+@keyframes overlayBoxPop {
+  from { opacity: 0; transform: scale(0.92) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .overlay-title {
@@ -371,10 +395,10 @@ canvas {
 }
 
 .settings-modal {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  background: color-mix(in srgb, var(--text) 18%, transparent);
-  backdrop-filter: blur(4px);
+  background: color-mix(in srgb, var(--accent) 42%, transparent);
+  backdrop-filter: blur(5px);
   padding: 24px;
   z-index: 100;
   animation: settingsBackdropIn 0.2s ease both;
@@ -426,7 +450,7 @@ canvas {
   display: none;
   border: 2px solid currentColor;
   padding: 14px;
-  background: transparent;
+  background: color-mix(in srgb, var(--bg) 20%, transparent);
 }
 
 .settings-panel.active { display: block; }
@@ -449,6 +473,7 @@ canvas {
   border: 2px solid currentColor;
   background: var(--accent);
   cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease;
 }
 
 .toggle-row input::after {
@@ -463,8 +488,18 @@ canvas {
   color: var(--text);
 }
 
+.toggle-row input:checked {
+  animation: toggleBounce 0.24s ease;
+}
+
 .toggle-row input:checked::after { content: "X"; }
-.toggle-row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.toggle-row input:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+
+@keyframes toggleBounce {
+  0% { transform: scale(0.88); }
+  55% { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
 
 @keyframes settingsBackdropIn {
   from { opacity: 0; }
@@ -484,6 +519,16 @@ canvas {
 @keyframes settingsBoxOut {
   from { opacity: 1; transform: translateY(0) scale(1); }
   to { opacity: 0; transform: translateY(16px) scale(0.97); }
+}
+
+.game-section.enter-fullscreen {
+  animation: fullscreenPulse 0.4s ease;
+}
+
+@keyframes fullscreenPulse {
+  0% { filter: brightness(1); }
+  45% { filter: brightness(1.08); }
+  100% { filter: brightness(1); }
 }
 
 .game-section:fullscreen {
@@ -578,7 +623,7 @@ canvas {
 }
 
 .game-section:fullscreen .settings-modal {
-  position: absolute;
+  position: fixed;
   width: 100vw;
   height: 100vh;
 }
