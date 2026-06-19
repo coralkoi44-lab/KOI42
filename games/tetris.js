@@ -107,10 +107,6 @@ export function initTetris() {
     return cell !== null && cell !== undefined && cell !== 0;
   }
 
-  function isOutOfBounds(x, y) {
-    return x < 0 || x >= COLS || y >= ROWS;
-  }
-
   function collide(arena, player) {
     return player.matrix.some((row, y) => row.some((value, x) => {
       if (value === 0) return false;
@@ -229,15 +225,25 @@ export function initTetris() {
     return lines;
   }
 
+  function copyCell(cell) {
+    return typeof cell === "object" && cell !== null ? { ...cell } : cell;
+  }
+
   function finishLineClear(lines) {
     const clearedSet = new Set(lines);
-    const remainingRows = arena.filter((row, y) => !clearedSet.has(y));
-    const newArena = [
-      ...createMatrix(COLS, arena.length - remainingRows.length),
-      ...remainingRows
+    const keptRows = arena
+      .filter((row, y) => !clearedSet.has(y))
+      .map(row => row.map(copyCell));
+    const rebuiltArena = [
+      ...createMatrix(COLS, ROWS - keptRows.length),
+      ...keptRows
     ];
 
-    arena.forEach((row, y) => row.splice(0, row.length, ...newArena[y]));
+    for (let y = 0; y < ROWS; y++) {
+      for (let x = 0; x < COLS; x++) {
+        arena[y][x] = rebuiltArena[y][x];
+      }
+    }
 
     let rowCount = 1;
     lines.forEach(() => {
