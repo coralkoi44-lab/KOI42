@@ -20,50 +20,50 @@
 <body data-theme="bee">
 
   <div class="aesthetic-menu-wrap">
-    <button id="aestheticButton" aria-expanded="false" aria-controls="aestheticPanel">AESTHETICS</button>
+    <button id="aestheticButton" aria-expanded="false" aria-controls="aestheticPanel">Aesthetics</button>
 
     <div class="aesthetic-panel hidden" id="aestheticPanel">
-      <div class="aesthetic-panel-title">pick a vibe</div>
+      <div class="aesthetic-panel-title">Choose your theme</div>
 
       <div class="theme-row">
-        <button class="theme-option active" data-theme-choice="bee">bee</button>
-        <button class="theme-option" data-theme-choice="anti-bee">Anti-bee</button>
+        <button class="theme-option active" data-theme-choice="bee">Bee</button>
+        <button class="theme-option" data-theme-choice="anti-bee">Anti-Bee</button>
       </div>
 
       <div class="theme-row">
-        <button class="theme-option" data-theme-choice="heather">heather</button>
-        <button class="theme-option" data-theme-choice="anti-heather">anti-heather</button>
+        <button class="theme-option" data-theme-choice="heather">Heather</button>
+        <button class="theme-option" data-theme-choice="anti-heather">Anti-Heather</button>
       </div>
 
       <div class="custom-theme-picker">
-        <div class="custom-theme-title">custom</div>
+        <div class="custom-theme-title">Custom</div>
         <label>
-          primary
+          Primary
           <input type="color" id="customPrimaryColor" value="#000000">
         </label>
         <label>
-          secondary
+          Secondary
           <input type="color" id="customSecondaryColor" value="#FFFFFF">
         </label>
         <label>
-          accent
+          Accent
           <input type="color" id="customAccentColor" value="#777777">
         </label>
-        <button id="applyCustomTheme">apply custom</button>
+        <button id="applyCustomTheme">Apply Custom</button>
       </div>
     </div>
   </div>
 
   <section class="hero">
     <main>
-      <h1>welcome to my website</h1>
-      <p>YOOOOOO</p>
+      <h1>Hello world :]</h1>
+      <p>hello world! this is my website, currently unfinished but i got a whole bunch planned. have fun!!</p>
     </main>
   </section>
 
   <section class="game-section" id="gameSection">
 
-    <h2>tetris zone</h2>
+    <h2>TETRIS</h2>
 
     <div class="game-wrap">
 
@@ -72,49 +72,49 @@
 
         <div class="overlay" id="startScreen">
           <div class="overlay-box">
-            <div class="overlay-title">ready?</div>
-            <div class="overlay-text">click begin game to start</div>
-            <button id="beginButton">BEGIN GAME</button>
+            <div class="overlay-title">Ready?</div>
+            <div class="overlay-text">Click Begin Game to start.</div>
+            <button id="beginButton">Begin Game</button>
           </div>
         </div>
 
         <div class="overlay hidden" id="pauseScreen">
           <div class="overlay-box">
-            <div class="overlay-title">paused</div>
-            <div class="overlay-text">press space, click the board, or move to resume</div>
+            <div class="overlay-title">Paused</div>
+            <div class="overlay-text">Press Space, click the board, or move to resume.</div>
           </div>
         </div>
 
         <div class="overlay hidden" id="gameOverScreen">
           <div class="overlay-box">
-            <div class="overlay-title">game over</div>
-            <div class="overlay-text">press space or click play again</div>
-            <button id="playAgainButton">PLAY AGAIN</button>
+            <div class="overlay-title">DEAD</div>
+            <div class="overlay-text">Aw man your dead now :[</div>
+            <button id="playAgainButton">Play Again</button>
           </div>
         </div>
       </div>
 
       <div class="panel">
         <div class="score">
-          score:
+          Score:
           <span id="score">0</span>
         </div>
 
         <div class="next-piece-panel">
-          <div class="next-piece-title">next</div>
+          <div class="next-piece-title">Next</div>
           <canvas id="nextPiece" width="120" height="120"></canvas>
         </div>
 
         <div class="stat-stack" id="statStack">
-          <div class="stat-line" id="levelStat">level: <span id="level">1</span></div>
-          <div class="stat-line">lines: <span id="lines">0</span></div>
+          <div class="stat-line" id="levelStat">Level: <span id="level">1</span></div>
+          <div class="stat-line">Lines: <span id="lines">0</span></div>
         </div>
 
         <div class="side-buttons">
-          <button id="settingsButton">SETTINGS</button>
-          <button id="pauseButton">PAUSE</button>
-          <button id="fullscreenButton">FULLSCREEN</button>
-          <button id="restartButton">RESTART</button>
+          <button id="settingsButton">Settings</button>
+          <button id="pauseButton">Pause</button>
+          <button id="fullscreenButton">Fullscreen</button>
+          <button id="restartButton">Restart</button>
         </div>
       </div>
 
@@ -123,49 +123,49 @@
     <div class="settings-modal hidden" id="settingsModal" aria-hidden="true">
       <div class="settings-box">
         <div class="settings-header">
-          <h3>tetris settings</h3>
-          <button id="closeSettingsButton">CLOSE</button>
+          <h3>Tetris Settings</h3>
+          <button id="closeSettingsButton">Close</button>
         </div>
 
         <div class="settings-tabs" role="tablist">
-          <button class="settings-tab active" data-tab="controlsTab">controls</button>
-          <button class="settings-tab" data-tab="settingsTab">settings</button>
-          <button class="settings-tab" data-tab="scoringTab">scoring info</button>
+          <button class="settings-tab active" data-tab="controlsTab">Controls</button>
+          <button class="settings-tab" data-tab="settingsTab">Settings</button>
+          <button class="settings-tab" data-tab="scoringTab">Scoring Info</button>
         </div>
 
         <div class="settings-panel active" id="controlsTab">
           <p>
-            ← → or A D move<br>
-            ↓ or S soft drop<br>
-            ↑ or W rotate<br>
-            Space pause / resume<br>
-            Space after game over restarts<br>
-            R restart<br>
-            ESC close this screen
+            ← → or A D: Move left/right<br>
+            ↓ or S: Soft drop<br>
+            ↑ or W: Rotate<br>
+            Space: Pause / resume<br>
+            Space after game over: Restart<br>
+            R: Restart<br>
+            ESC: Close this screen
           </p>
         </div>
 
         <div class="settings-panel" id="settingsTab">
           <label class="toggle-row">
-            <span>speed increases over time</span>
+            <span>Speed increases over time</span>
             <input type="checkbox" id="speedIncreaseToggle" checked>
           </label>
-          <p class="small-note">When this is on, every 10 cleared lines raises the level and gravity gets faster.</p>
+          <p class="small-note">When this is on, every 10 cleared lines raises the level and makes pieces fall faster.</p>
         </div>
 
         <div class="settings-panel" id="scoringTab">
           <p>
-            single 100 × level<br>
-            double 300 × level<br>
-            triple 500 × level<br>
-            tetris 800 × level<br>
-            T-spin single 800 × level<br>
-            T-spin double 1200 × level<br>
-            T-spin triple 1600 × level<br>
-            mini T-spin single 200 × level<br>
-            back-to-back hard clears get 1.5×<br>
-            combos add 50 × combo × level<br>
-            perfect clears add a big bonus
+            Clear 1 line: 100 × your level<br>
+            Clear 2 lines at once: 300 × your level<br>
+            Clear 3 lines at once: 500 × your level<br>
+            Clear 4 lines at once, called a Tetris: 800 × your level<br>
+            T-Spin Single: 800 × your level<br>
+            T-Spin Double: 1200 × your level<br>
+            T-Spin Triple: 1600 × your level<br>
+            Mini T-Spin Single: 200 × your level<br>
+            Back-to-back hard clears: 1.5× bonus<br>
+            Combos: extra points when you clear lines on multiple pieces in a row<br>
+            Perfect clear: big bonus when the board is completely empty after a clear
           </p>
         </div>
       </div>
