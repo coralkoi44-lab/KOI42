@@ -3,8 +3,9 @@ import { initTetris } from "./games/tetris.js";
 const aestheticButton = document.getElementById("aestheticButton");
 const aestheticPanel = document.getElementById("aestheticPanel");
 const themeOptions = document.querySelectorAll("[data-theme-choice]");
-const customBgColor = document.getElementById("customBgColor");
-const customTextColor = document.getElementById("customTextColor");
+const customPrimaryColor = document.getElementById("customPrimaryColor");
+const customSecondaryColor = document.getElementById("customSecondaryColor");
+const customAccentColor = document.getElementById("customAccentColor");
 const applyCustomTheme = document.getElementById("applyCustomTheme");
 
 function setTheme(themeName) {
@@ -47,8 +48,9 @@ themeOptions.forEach((option) => {
 });
 
 applyCustomTheme.addEventListener("click", () => {
-  document.body.style.setProperty("--custom-bg", customBgColor.value);
-  document.body.style.setProperty("--custom-text", customTextColor.value);
+  document.body.style.setProperty("--custom-primary", customPrimaryColor.value);
+  document.body.style.setProperty("--custom-secondary", customSecondaryColor.value);
+  document.body.style.setProperty("--custom-accent", customAccentColor.value);
   setTheme("custom");
 });
 
