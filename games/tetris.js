@@ -289,38 +289,21 @@ export function initTetris() {
       });
     });
 
-    drawPieceOutline(matrix, offset, drawingContext, canvasElement, cols);
+    drawPieceOutlines(matrix, offset, drawingContext, canvasElement, cols);
   }
 
-  function drawPieceOutline(matrix, offset, drawingContext, canvasElement, cols) {
+  function drawPieceOutlines(matrix, offset, drawingContext, canvasElement, cols) {
     drawingContext.strokeStyle = getComputedStyle(document.body).color;
     drawingContext.lineWidth = lineWidth(canvasElement, cols);
     drawingContext.lineJoin = "miter";
-    drawingContext.beginPath();
 
     matrix.forEach((row, y) => {
       row.forEach((value, x) => {
-        if (value === 0) return;
-
-        const hasNeighbor = (neighborX, neighborY) => matrix[neighborY]?.[neighborX] === value;
-        const left = x + offset.x;
-        const top = y + offset.y;
-        const right = left + 1;
-        const bottom = top + 1;
-
-        if (!hasNeighbor(x, y - 1)) moveLine(drawingContext, left, top, right, top);
-        if (!hasNeighbor(x + 1, y)) moveLine(drawingContext, right, top, right, bottom);
-        if (!hasNeighbor(x, y + 1)) moveLine(drawingContext, right, bottom, left, bottom);
-        if (!hasNeighbor(x - 1, y)) moveLine(drawingContext, left, bottom, left, top);
+        if (value !== 0) {
+          drawingContext.strokeRect(x + offset.x, y + offset.y, 1, 1);
+        }
       });
     });
-
-    drawingContext.stroke();
-  }
-
-  function moveLine(drawingContext, fromX, fromY, toX, toY) {
-    drawingContext.moveTo(fromX, fromY);
-    drawingContext.lineTo(toX, toY);
   }
 
   function drawNextPiece() {
