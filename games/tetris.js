@@ -25,6 +25,13 @@ export function initTetris() {
   const CANVAS_BORDER_WIDTH = 3;
   const BLOCK_FILL_OVERLAP = 0.03;
 
+  const namedPiecePalettes = {
+    bee: ["#FF9A3B", "#FF9029", "#FFA24B", "#FF7A1A", "#FFB35F", "#F28432", "#FF8A00"],
+    "anti-bee": ["#FF9A3B", "#FF9029", "#FFA24B", "#FF7A1A", "#FFB35F", "#F28432", "#FF8A00"],
+    heather: ["#FF94D4", "#FFBEE5", "#FFA0DC", "#FF7FCB", "#FFD2EE", "#F48AC8", "#FF66BE"],
+    "anti-heather": ["#FF94D4", "#FFBEE5", "#FFA0DC", "#FF7FCB", "#FFD2EE", "#F48AC8", "#FF66BE"]
+  };
+
   const arena = createMatrix(COLS, ROWS);
 
   const player = {
@@ -318,43 +325,38 @@ export function initTetris() {
   }
 
   function getSevenColorPalette() {
-    const anchors = getThemeAnchorColors();
-
-    return [
-      anchors[0],
-      anchors[1],
-      anchors[2],
-      mixColors(anchors[0], anchors[1], 0.5),
-      mixColors(anchors[1], anchors[2], 0.5),
-      mixColors(anchors[0], anchors[1], 0.28),
-      mixColors(anchors[1], anchors[2], 0.72)
-    ];
-  }
-
-  function getThemeAnchorColors() {
-    const style = getComputedStyle(document.body);
     const themeName = document.body.dataset.theme || "bee";
 
-    if (themeName === "custom") {
-      const bg = parseColor(style.backgroundColor);
-      const text = parseColor(style.color);
-
-      return [
-        formatRgb(mixRgb(text, bg, 0.12)),
-        formatRgb(mixRgb(text, bg, 0.32)),
-        formatRgb(mixRgb(text, bg, 0.52))
-      ];
+    if (namedPiecePalettes[themeName]) {
+      return namedPiecePalettes[themeName];
     }
 
-    return [
-      style.getPropertyValue("--piece-a").trim(),
-      style.getPropertyValue("--piece-b").trim(),
-      style.getPropertyValue("--piece-c").trim()
-    ];
+    return generateCustomPaletteFromTextColor();
   }
 
-  function mixColors(colorA, colorB, amount) {
-    return formatRgb(mixRgb(parseColor(colorA), parseColor(colorB), amount));
+  function generateCustomPaletteFromTextColor() {
+    const textColor = parseColor(getComputedStyle(document.body).color);
+    const base = rgbToHsl(textColor);
+    const minLightness = base.l > 0.5 ? 0.24 : 0.38;
+    const maxLightness = base.l > 0.5 ? 0.88 : 0.72;
+    const saturation = clamp(base.s < 0.18 ? 0.58 : base.s + 0.12, 0.38, 0.95);
+
+    const variants = [
+      { h: 0, s: 0.08, l: 0 },
+      { h: 18, s: 0.14, l: -0.16 },
+      { h: -18, s: 0.1, l: 0.13 },
+      { h: 42, s: 0.04, l: -0.28 },
+      { h: -42, s: 0.16, l: 0.24 },
+      { h: 74, s: -0.08, l: -0.08 },
+      { h: -74, s: 0.2, l: 0.06 }
+    ];
+
+    return variants.map((variant) => {
+      const h = wrapHue(base.h + variant.h);
+      const s = clamp(saturation + variant.s, 0.32, 0.98);
+      const l = clamp(base.l + variant.l, minLightness, maxLightness);
+      return formatRgb(hslToRgb({ h, s, l }));
+    });
   }
 
   function parseColor(color) {
@@ -382,16 +384,63 @@ export function initTetris() {
     };
   }
 
-  function mixRgb(colorA, colorB, amount) {
+  function rgbToHsl({ r, g, b }) {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0;
+    let s = 0;
+    const l = (max + min) / 2;
+
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+      if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+      if (max === g) h = (b - r) / d + 2;
+      if (max === b) h = (r - g) / d + 4;
+
+      h *= 60;
+    }
+
+    return { h, s, l };
+  }
+
+  function hslToRgb({ h, s, l }) {
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    const m = l - c / 2;
+    let r = 0;
+    let g = 0;
+    let b = 0;
+
+    if (h < 60) [r, g, b] = [c, x, 0];
+    else if (h < 120) [r, g, b] = [x, c, 0];
+    else if (h < 180) [r, g, b] = [0, c, x];
+    else if (h < 240) [r, g, b] = [0, x, c];
+    else if (h < 300) [r, g, b] = [x, 0, c];
+    else [r, g, b] = [c, 0, x];
+
     return {
-      r: Math.round(colorA.r + (colorB.r - colorA.r) * amount),
-      g: Math.round(colorA.g + (colorB.g - colorA.g) * amount),
-      b: Math.round(colorA.b + (colorB.b - colorA.b) * amount)
+      r: Math.round((r + m) * 255),
+      g: Math.round((g + m) * 255),
+      b: Math.round((b + m) * 255)
     };
   }
 
   function formatRgb(color) {
     return `rgb(${color.r}, ${color.g}, ${color.b})`;
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function wrapHue(hue) {
+    return ((hue % 360) + 360) % 360;
   }
 
   function getLineColor() {
