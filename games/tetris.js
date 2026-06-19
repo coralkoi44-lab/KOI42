@@ -118,7 +118,10 @@ export function initTetris() {
       const arenaX = x + player.pos.x;
       const arenaY = y + player.pos.y;
 
-      return isOutOfBounds(arenaX, arenaY) || hasCell(arena[arenaY]?.[arenaX]);
+      if (arenaX < 0 || arenaX >= COLS || arenaY >= ROWS) return true;
+      if (arenaY < 0) return false;
+
+      return hasCell(arena[arenaY]?.[arenaX]);
     }));
   }
 
@@ -126,7 +129,12 @@ export function initTetris() {
     player.matrix.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value !== 0) {
-          arena[y + player.pos.y][x + player.pos.x] = {
+          const arenaY = y + player.pos.y;
+          const arenaX = x + player.pos.x;
+
+          if (arenaY < 0 || arenaY >= ROWS || arenaX < 0 || arenaX >= COLS) return;
+
+          arena[arenaY][arenaX] = {
             type: value,
             pieceId: player.pieceId
           };
@@ -158,7 +166,7 @@ export function initTetris() {
       player.pos.x += offset;
       offset = -(offset + (offset > 0 ? 1 : -1));
 
-      if (offset > player.matrix[0].length) {
+      if (Math.abs(offset) > player.matrix[0].length) {
         rotate(player.matrix, -direction);
         player.pos.x = startX;
         return;
