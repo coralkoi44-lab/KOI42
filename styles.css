@@ -55,7 +55,7 @@ body {
 }
 
 button {
-  background: transparent;
+  background: var(--bg);
   color: inherit;
   border: 2px solid currentColor;
   padding: 12px 18px;
@@ -104,7 +104,7 @@ button:active {
 }
 
 .aesthetic-panel {
-  width: 260px;
+  width: 270px;
   border: 2px solid currentColor;
   padding: 10px;
   box-shadow: 8px 8px 0 currentColor;
@@ -148,15 +148,22 @@ p,
 
 .theme-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 8px;
   margin-top: 8px;
+  align-items: stretch;
 }
 
 .theme-option {
   width: 100%;
-  padding: 10px 12px;
-  text-align: left;
+  min-height: 42px;
+  padding: 10px 8px;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .custom-theme-picker {
@@ -204,11 +211,18 @@ p,
   padding: 100px 24px 80px;
 }
 
+.hero p {
+  max-width: 760px;
+  margin: 24px auto 0;
+  text-align: center;
+  line-height: 1.45;
+}
+
 h1 {
   font-size: clamp(48px, 10vw, 120px);
-  line-height: 0.95;
+  line-height: 0.98;
   margin: 0;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.025em;
 }
 
 p {
