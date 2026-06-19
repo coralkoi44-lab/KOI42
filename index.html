@@ -68,13 +68,20 @@
     <div class="game-wrap">
 
       <div class="game-board" id="gameBoard">
-        <canvas id="tetris" width="240" height="400"></canvas>
+        <canvas id="tetris" width="250" height="500"></canvas>
 
         <div class="overlay" id="startScreen">
           <div class="overlay-box">
             <div class="overlay-title">ready?</div>
             <div class="overlay-text">click begin game to start</div>
             <button id="beginButton">BEGIN GAME</button>
+          </div>
+        </div>
+
+        <div class="overlay hidden" id="pauseScreen">
+          <div class="overlay-box">
+            <div class="overlay-title">paused</div>
+            <div class="overlay-text">press space, click the board, or move to resume</div>
           </div>
         </div>
 
@@ -93,13 +100,18 @@
           <span id="score">0</span>
         </div>
 
+        <div class="stat-line">level: <span id="level">1</span></div>
+        <div class="stat-line">lines: <span id="lines">0</span></div>
+        <div class="stat-line action-text" id="actionText">ready</div>
+
         <div class="next-piece-panel">
           <div class="next-piece-title">next</div>
           <canvas id="nextPiece" width="120" height="120"></canvas>
         </div>
 
         <div class="side-buttons">
-          <button id="controlsButton">CONTROLS</button>
+          <button id="settingsButton">SETTINGS</button>
+          <button id="pauseButton">PAUSE</button>
           <button id="fullscreenButton">FULLSCREEN</button>
           <button id="restartButton">RESTART</button>
         </div>
@@ -109,20 +121,53 @@
 
   </section>
 
-  <div class="controls-modal hidden" id="controlsModal">
-    <div class="controls-box">
-      <h3>controls</h3>
+  <div class="settings-modal hidden" id="settingsModal" aria-hidden="true">
+    <div class="settings-box">
+      <div class="settings-header">
+        <h3>tetris settings</h3>
+        <button id="closeSettingsButton">CLOSE</button>
+      </div>
 
-      <p>
-        ← → or A D move<br>
-        ↓ or S soft drop<br>
-        ↑ or W rotate<br>
-        space hard drop<br>
-        R restart<br>
-        ESC close this screen
-      </p>
+      <div class="settings-tabs" role="tablist">
+        <button class="settings-tab active" data-tab="controlsTab">controls</button>
+        <button class="settings-tab" data-tab="settingsTab">settings</button>
+        <button class="settings-tab" data-tab="scoringTab">scoring info</button>
+      </div>
 
-      <button id="closeControlsButton">CLOSE</button>
+      <div class="settings-panel active" id="controlsTab">
+        <p>
+          ← → or A D move<br>
+          ↓ or S soft drop<br>
+          ↑ or W rotate<br>
+          Space pause / resume<br>
+          R restart<br>
+          ESC close this screen
+        </p>
+      </div>
+
+      <div class="settings-panel" id="settingsTab">
+        <label class="toggle-row">
+          <span>speed increases over time</span>
+          <input type="checkbox" id="speedIncreaseToggle" checked>
+        </label>
+        <p class="small-note">When this is on, every 10 cleared lines raises the level and gravity gets faster.</p>
+      </div>
+
+      <div class="settings-panel" id="scoringTab">
+        <p>
+          single 100 × level<br>
+          double 300 × level<br>
+          triple 500 × level<br>
+          tetris 800 × level<br>
+          T-spin single 800 × level<br>
+          T-spin double 1200 × level<br>
+          T-spin triple 1600 × level<br>
+          mini T-spin single 200 × level<br>
+          back-to-back hard clears get 1.5×<br>
+          combos add 50 × combo × level<br>
+          perfect clears add a big bonus
+        </p>
+      </div>
     </div>
   </div>
 
