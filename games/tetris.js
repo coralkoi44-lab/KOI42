@@ -22,12 +22,13 @@ export function initTetris() {
   const COLS = 12;
   const ROWS = 20;
   const NEXT_SIZE = 6;
+  const GRID_LINE_WIDTH = 0.15;
 
   const piecePalettes = {
-    bee: ["#FF9A3B", "#FF8E43", "#FFAC5F", "#FF8819", "#F18948", "#F0874F", "#FF8819"],
-    "anti-bee": ["#0065C4", "#0071BC", "#0053A0", "#0077E6", "#0E76B7", "#0F78B0", "#0077E6"],
-    gub: ["#FF78C9", "#FFA5F3", "#FFA5C8", "#FF8AB7", "#FFC0EC", "#F7C0FF", "#FF78C9"],
-    "anti-gub": ["#008736", "#005A0C", "#005A37", "#007548", "#003F13", "#083F00", "#008736"]
+    bee: ["#FF9A3B", "#FF9029", "#FFA24B"],
+    "anti-bee": ["#0065C4", "#006FD6", "#005DB4"],
+    heather: ["#FF94D4", "#FFBEE5", "#FFA0DC"],
+    "anti-heather": ["#006B2B", "#00411A", "#005F23"]
   };
 
   const arena = createMatrix(COLS, ROWS);
@@ -319,8 +320,22 @@ export function initTetris() {
 
   function getPieceColor(value) {
     const themeName = document.body.dataset.theme || "bee";
+
+    if (themeName === "custom") {
+      const customColors = [
+        getComputedStyle(document.body).getPropertyValue("--custom-text").trim(),
+        getComputedStyle(document.body).getPropertyValue("--custom-bg").trim(),
+        getComputedStyle(document.body).color
+      ];
+      return customColors[(value - 1) % customColors.length];
+    }
+
     const palette = piecePalettes[themeName] || piecePalettes.bee;
     return palette[(value - 1) % palette.length];
+  }
+
+  function getLineColor() {
+    return getComputedStyle(document.body).color;
   }
 
   function drawMatrix(matrix, offset, drawingContext = context) {
@@ -334,11 +349,59 @@ export function initTetris() {
         }
       });
     });
+
+    drawPieceOutlines(matrix, offset, drawingContext);
+  }
+
+  function drawPieceOutlines(matrix, offset, drawingContext = context) {
+    drawingContext.strokeStyle = getLineColor();
+    drawingContext.lineWidth = GRID_LINE_WIDTH;
+    drawingContext.lineCap = "square";
+    drawingContext.beginPath();
+
+    matrix.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value === 0) return;
+
+        const drawEdge = (neighborX, neighborY) => {
+          const neighborRow = matrix[neighborY];
+          const neighborValue = neighborRow ? neighborRow[neighborX] : 0;
+          return neighborValue !== value;
+        };
+
+        const left = x + offset.x;
+        const top = y + offset.y;
+        const right = left + 1;
+        const bottom = top + 1;
+
+        if (drawEdge(x, y - 1)) {
+          drawingContext.moveTo(left, top);
+          drawingContext.lineTo(right, top);
+        }
+
+        if (drawEdge(x + 1, y)) {
+          drawingContext.moveTo(right, top);
+          drawingContext.lineTo(right, bottom);
+        }
+
+        if (drawEdge(x, y + 1)) {
+          drawingContext.moveTo(right, bottom);
+          drawingContext.lineTo(left, bottom);
+        }
+
+        if (drawEdge(x - 1, y)) {
+          drawingContext.moveTo(left, bottom);
+          drawingContext.lineTo(left, top);
+        }
+      });
+    });
+
+    drawingContext.stroke();
   }
 
   function drawGrid(drawingContext, cols, rows) {
-    drawingContext.strokeStyle = getComputedStyle(document.body).color;
-    drawingContext.lineWidth = 0.03;
+    drawingContext.strokeStyle = getLineColor();
+    drawingContext.lineWidth = GRID_LINE_WIDTH;
 
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
@@ -396,7 +459,7 @@ export function initTetris() {
     arena.forEach((row, y) => {
       if (clearLines.includes(y)) {
         if (progress < 0.2) {
-          context.fillStyle = getComputedStyle(document.body).color;
+          context.fillStyle = getLineColor();
           context.fillRect(0, y, COLS, 1);
         }
 
