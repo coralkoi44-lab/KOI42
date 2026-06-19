@@ -309,10 +309,9 @@ export function initTetris() {
   }
 
   function drawPieceOutlines(matrix, offset, drawingContext, canvasElement, cols, fallbackPieceId) {
-    drawingContext.strokeStyle = getComputedStyle(document.body).color;
-    drawingContext.lineWidth = lineWidth(canvasElement, cols);
-    drawingContext.lineJoin = "miter";
-    drawingContext.beginPath();
+    const width = lineWidth(canvasElement, cols);
+    const halfWidth = width / 2;
+    drawingContext.fillStyle = getComputedStyle(document.body).color;
 
     matrix.forEach((row, y) => {
       row.forEach((cell, x) => {
@@ -328,19 +327,23 @@ export function initTetris() {
         const right = left + 1;
         const bottom = top + 1;
 
-        if (!hasSamePieceNeighbor(x, y - 1)) moveLine(drawingContext, left, top, right, top);
-        if (!hasSamePieceNeighbor(x + 1, y)) moveLine(drawingContext, right, top, right, bottom);
-        if (!hasSamePieceNeighbor(x, y + 1)) moveLine(drawingContext, right, bottom, left, bottom);
-        if (!hasSamePieceNeighbor(x - 1, y)) moveLine(drawingContext, left, bottom, left, top);
+        if (!hasSamePieceNeighbor(x, y - 1)) {
+          drawingContext.fillRect(left - halfWidth, top - halfWidth, 1 + width, width);
+        }
+
+        if (!hasSamePieceNeighbor(x + 1, y)) {
+          drawingContext.fillRect(right - halfWidth, top - halfWidth, width, 1 + width);
+        }
+
+        if (!hasSamePieceNeighbor(x, y + 1)) {
+          drawingContext.fillRect(left - halfWidth, bottom - halfWidth, 1 + width, width);
+        }
+
+        if (!hasSamePieceNeighbor(x - 1, y)) {
+          drawingContext.fillRect(left - halfWidth, top - halfWidth, width, 1 + width);
+        }
       });
     });
-
-    drawingContext.stroke();
-  }
-
-  function moveLine(drawingContext, fromX, fromY, toX, toY) {
-    drawingContext.moveTo(fromX, fromY);
-    drawingContext.lineTo(toX, toY);
   }
 
   function drawNextPiece() {
