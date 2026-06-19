@@ -52,11 +52,9 @@ export function initTetris() {
   let gameStarted = false;
   let gameOver = false;
   let paused = false;
-  let resumeOnNextInteraction = false;
   let dropCounter = 0;
   let dropInterval = BASE_DROP_INTERVAL;
   let lastTime = 0;
-  let lineClearAnimation = null;
   let pieceIdCounter = 1;
   let bag = [];
   let speedIncreaseEnabled = true;
@@ -78,6 +76,7 @@ export function initTetris() {
 
   speedIncreaseToggle.addEventListener("change", () => {
     speedIncreaseEnabled = speedIncreaseToggle.checked;
+    bounceElement(speedIncreaseToggle);
     refreshLevelFromLines();
     updateSpeed();
     updateStats();
@@ -97,6 +96,7 @@ export function initTetris() {
 
   fullscreenButton.addEventListener("click", async () => {
     try {
+      animateElement(gameSection, "enter-fullscreen");
       if (document.fullscreenElement) await document.exitFullscreen();
       else await gameSection.requestFullscreen();
     } catch (error) {
@@ -106,6 +106,7 @@ export function initTetris() {
 
   document.addEventListener("fullscreenchange", () => {
     fullscreenButton.innerText = document.fullscreenElement ? "EXIT FULLSCREEN" : "FULLSCREEN";
+    animateElement(gameSection, "enter-fullscreen");
     requestAnimationFrame(draw);
   });
 
@@ -175,12 +176,11 @@ export function initTetris() {
   function merge(arena, player) {
     player.matrix.forEach((row, y) => {
       row.forEach((value, x) => {
-        if (value !== 0) {
-          const arenaY = y + player.pos.y;
-          const arenaX = x + player.pos.x;
-          if (arenaY < 0 || arenaY >= ROWS || arenaX < 0 || arenaX >= COLS) return;
-          arena[arenaY][arenaX] = { type: value, pieceId: player.pieceId, tetromino: player.type };
-        }
+        if (value === 0) return;
+        const arenaY = y + player.pos.y;
+        const arenaX = x + player.pos.x;
+        if (arenaY < 0 || arenaY >= ROWS || arenaX < 0 || arenaX >= COLS) return;
+        arena[arenaY][arenaX] = { type: value, pieceId: player.pieceId, tetromino: player.type };
       });
     });
   }
@@ -229,7 +229,7 @@ export function initTetris() {
   }
 
   function canMove() {
-    return gameStarted && !gameOver && !paused && !lineClearAnimation;
+    return gameStarted && !gameOver && !paused;
   }
 
   function lockPiece(impactType) {
@@ -256,8 +256,8 @@ export function initTetris() {
       const rebuiltArena = [...createMatrix(COLS, ROWS - keptRows.length), ...keptRows];
       for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) arena[y][x] = rebuiltArena[y][x];
     }
+
     awardScore(lines.length, spin);
-    lineClearAnimation = null;
     if (lines.length > 0) triggerImpact("big");
     playerReset();
     updateStats();
@@ -343,10 +343,7 @@ export function initTetris() {
 
   function triggerImpact(type) {
     const className = type === "big" ? "impact-big" : "impact-small";
-    gameBoard.classList.remove("impact-big", "impact-small");
-    void gameBoard.offsetWidth;
-    gameBoard.classList.add(className);
-    setTimeout(() => gameBoard.classList.remove(className), type === "big" ? 260 : 180);
+    animateElement(gameBoard, className, type === "big" ? 260 : 180);
   }
 
   function lineWidth(canvasElement, cols) {
@@ -457,13 +454,12 @@ export function initTetris() {
     gameStarted = true;
     gameOver = false;
     paused = false;
-    resumeOnNextInteraction = false;
-    lineClearAnimation = null;
     dropCounter = 0;
     lastTime = 0;
     startScreen.classList.add("hidden");
     pauseScreen.classList.add("hidden");
     gameOverScreen.classList.add("hidden");
+    pauseButton.innerText = "PAUSE";
     refreshLevelFromLines();
     updateSpeed();
     updateStats();
@@ -481,13 +477,13 @@ export function initTetris() {
     paused = false;
     pauseScreen.classList.add("hidden");
     gameOverScreen.classList.remove("hidden");
+    pauseButton.innerText = "PAUSE";
     triggerImpact("big");
   }
 
-  function pauseGame(waitForInteraction = false) {
+  function pauseGame() {
     if (!gameStarted || gameOver) return;
     paused = true;
-    resumeOnNextInteraction = waitForInteraction;
     pauseScreen.classList.remove("hidden");
     pauseButton.innerText = "RESUME";
   }
@@ -495,21 +491,21 @@ export function initTetris() {
   function resumeGame() {
     if (!gameStarted || gameOver) return;
     paused = false;
-    resumeOnNextInteraction = false;
     pauseScreen.classList.add("hidden");
     pauseButton.innerText = "PAUSE";
     lastTime = performance.now();
+    animateElement(gameBoard, "resume-pop", 280);
   }
 
   function togglePause() {
     if (paused) resumeGame();
-    else pauseGame(false);
+    else pauseGame();
   }
 
   function openSettingsModal() {
     settingsModal.classList.remove("hidden", "closing");
     settingsModal.setAttribute("aria-hidden", "false");
-    pauseGame(true);
+    pauseGame();
   }
 
   function closeSettingsModal() {
@@ -520,6 +516,19 @@ export function initTetris() {
   function activateSettingsTab(tabId) {
     settingsTabs.forEach(tab => tab.classList.toggle("active", tab.dataset.tab === tabId));
     settingsPanels.forEach(panel => panel.classList.toggle("active", panel.id === tabId));
+  }
+
+  function animateElement(element, className, duration = 400) {
+    element.classList.remove(className);
+    void element.offsetWidth;
+    element.classList.add(className);
+    window.setTimeout(() => element.classList.remove(className), duration);
+  }
+
+  function bounceElement(element) {
+    element.style.animation = "none";
+    void element.offsetWidth;
+    element.style.animation = "toggleBounce 0.24s ease";
   }
 
   function update(time = 0) {
@@ -542,7 +551,7 @@ export function initTetris() {
       else togglePause();
       return;
     }
-    if (paused && resumeOnNextInteraction && gameKeys.includes(event.code)) resumeGame();
+    if (paused && gameKeys.includes(event.code)) resumeGame();
     if (event.key === "ArrowLeft" || event.code === "KeyA") playerMove(-1);
     if (event.key === "ArrowRight" || event.code === "KeyD") playerMove(1);
     if (event.key === "ArrowDown" || event.code === "KeyS") playerDrop(true);
