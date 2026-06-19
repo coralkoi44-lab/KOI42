@@ -28,7 +28,9 @@ export function initTetris() {
     pos: { x: 0, y: 0 },
     matrix: null,
     nextMatrix: null,
-    score: 0
+    score: 0,
+    pieceId: 0,
+    nextPieceId: 1
   };
 
   let gameStarted = false;
@@ -37,6 +39,7 @@ export function initTetris() {
   let dropInterval = 700;
   let lastTime = 0;
   let lineClearAnimation = null;
+  let pieceIdCounter = 1;
 
   controlsButton.addEventListener("click", () => controlsModal.classList.remove("hidden"));
   closeControlsButton.addEventListener("click", () => controlsModal.classList.add("hidden"));
@@ -65,7 +68,7 @@ export function initTetris() {
   document.addEventListener("keydown", handleKeydown);
 
   function createMatrix(width, height) {
-    return Array.from({ length: height }, () => new Array(width).fill(0));
+    return Array.from({ length: height }, () => new Array(width).fill(null));
   }
 
   function createPiece(type) {
@@ -100,10 +103,13 @@ export function initTetris() {
     resizeCanvas(nextCanvas, nextContext, NEXT_SIZE, NEXT_SIZE);
   }
 
+  function hasCell(cell) {
+    return cell !== null && cell !== 0;
+  }
+
   function collide(arena, player) {
     return player.matrix.some((row, y) => row.some((value, x) => (
-      value !== 0 &&
-      (arena[y + player.pos.y] && arena[y + player.pos.y][x + player.pos.x]) !== 0
+      value !== 0 && hasCell(arena[y + player.pos.y]?.[x + player.pos.x])
     )));
   }
 
@@ -111,7 +117,10 @@ export function initTetris() {
     player.matrix.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value !== 0) {
-          arena[y + player.pos.y][x + player.pos.x] = value;
+          arena[y + player.pos.y][x + player.pos.x] = {
+            type: value,
+            pieceId: player.pieceId
+          };
         }
       });
     });
@@ -197,7 +206,7 @@ export function initTetris() {
     const lines = [];
 
     for (let y = arena.length - 1; y >= 0; y--) {
-      if (arena[y].every(cell => cell !== 0)) lines.push(y);
+      if (arena[y].every(hasCell)) lines.push(y);
     }
 
     return lines;
@@ -227,7 +236,9 @@ export function initTetris() {
 
   function playerReset() {
     player.matrix = player.nextMatrix || randomPiece();
+    player.pieceId = player.nextPieceId || pieceIdCounter++;
     player.nextMatrix = randomPiece();
+    player.nextPieceId = pieceIdCounter++;
     player.pos.y = 0;
     player.pos.x = Math.floor(COLS / 2) - Math.floor(player.matrix[0].length / 2);
 
@@ -271,14 +282,19 @@ export function initTetris() {
     drawingContext.stroke();
   }
 
-  function drawMatrix(matrix, offset, drawingContext = context, canvasElement = canvas, cols = COLS) {
+  function cellPieceId(cell, fallbackPieceId) {
+    if (!hasCell(cell)) return null;
+    return typeof cell === "object" ? cell.pieceId : fallbackPieceId;
+  }
+
+  function drawMatrix(matrix, offset, drawingContext = context, canvasElement = canvas, cols = COLS, fallbackPieceId = null) {
     if (!matrix) return;
 
     drawingContext.fillStyle = themeColor("--accent");
 
     matrix.forEach((row, y) => {
-      row.forEach((value, x) => {
-        if (value !== 0) {
+      row.forEach((cell, x) => {
+        if (hasCell(cell)) {
           drawingContext.fillRect(
             x + offset.x - FILL_OVERLAP,
             y + offset.y - FILL_OVERLAP,
@@ -289,21 +305,42 @@ export function initTetris() {
       });
     });
 
-    drawPieceOutlines(matrix, offset, drawingContext, canvasElement, cols);
+    drawPieceOutlines(matrix, offset, drawingContext, canvasElement, cols, fallbackPieceId);
   }
 
-  function drawPieceOutlines(matrix, offset, drawingContext, canvasElement, cols) {
+  function drawPieceOutlines(matrix, offset, drawingContext, canvasElement, cols, fallbackPieceId) {
     drawingContext.strokeStyle = getComputedStyle(document.body).color;
     drawingContext.lineWidth = lineWidth(canvasElement, cols);
     drawingContext.lineJoin = "miter";
+    drawingContext.beginPath();
 
     matrix.forEach((row, y) => {
-      row.forEach((value, x) => {
-        if (value !== 0) {
-          drawingContext.strokeRect(x + offset.x, y + offset.y, 1, 1);
-        }
+      row.forEach((cell, x) => {
+        if (!hasCell(cell)) return;
+
+        const currentPieceId = cellPieceId(cell, fallbackPieceId);
+        const hasSamePieceNeighbor = (neighborX, neighborY) => (
+          cellPieceId(matrix[neighborY]?.[neighborX], fallbackPieceId) === currentPieceId
+        );
+
+        const left = x + offset.x;
+        const top = y + offset.y;
+        const right = left + 1;
+        const bottom = top + 1;
+
+        if (!hasSamePieceNeighbor(x, y - 1)) moveLine(drawingContext, left, top, right, top);
+        if (!hasSamePieceNeighbor(x + 1, y)) moveLine(drawingContext, right, top, right, bottom);
+        if (!hasSamePieceNeighbor(x, y + 1)) moveLine(drawingContext, right, bottom, left, bottom);
+        if (!hasSamePieceNeighbor(x - 1, y)) moveLine(drawingContext, left, bottom, left, top);
       });
     });
+
+    drawingContext.stroke();
+  }
+
+  function moveLine(drawingContext, fromX, fromY, toX, toY) {
+    drawingContext.moveTo(fromX, fromY);
+    drawingContext.lineTo(toX, toY);
   }
 
   function drawNextPiece() {
@@ -316,7 +353,7 @@ export function initTetris() {
     const usedCells = [];
     player.nextMatrix.forEach((row, y) => {
       row.forEach((value, x) => {
-        if (value !== 0) usedCells.push({ x, y });
+        if (hasCell(value)) usedCells.push({ x, y });
       });
     });
 
@@ -330,7 +367,7 @@ export function initTetris() {
       y: Math.round((NEXT_SIZE - (maxY - minY + 1)) / 2 - minY)
     };
 
-    drawMatrix(player.nextMatrix, offset, nextContext, nextCanvas, NEXT_SIZE);
+    drawMatrix(player.nextMatrix, offset, nextContext, nextCanvas, NEXT_SIZE, player.nextPieceId);
   }
 
   function draw() {
@@ -342,7 +379,7 @@ export function initTetris() {
     drawGrid(context, canvas, COLS, ROWS);
     drawMatrix(arena, { x: 0, y: 0 });
 
-    if (canMove()) drawMatrix(player.matrix, player.pos);
+    if (canMove()) drawMatrix(player.matrix, player.pos, context, canvas, COLS, player.pieceId);
 
     drawNextPiece();
   }
@@ -352,10 +389,11 @@ export function initTetris() {
   }
 
   function startGame() {
-    arena.forEach(row => row.fill(0));
+    arena.forEach(row => row.fill(null));
     player.score = 0;
     player.matrix = null;
     player.nextMatrix = randomPiece();
+    player.nextPieceId = pieceIdCounter++;
 
     gameStarted = true;
     gameOver = false;
