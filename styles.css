@@ -340,31 +340,36 @@ canvas {
 
 .panel {
   width: 140px;
+  height: 400px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: center;
+  justify-content: space-between;
   font-size: 16px;
   line-height: 1.5;
 }
 
 .score {
   width: 100%;
+  min-height: 42px;
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 34px;
-  margin-bottom: 6px;
+  line-height: 1;
+  margin: 0;
   text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .next-piece-panel {
   width: 100%;
-  margin-bottom: 20px;
   text-align: center;
 }
 
 .next-piece-title {
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 28px;
+  line-height: 1;
   margin-bottom: 10px;
   letter-spacing: -0.04em;
 }
@@ -454,12 +459,13 @@ canvas {
   grid-column: 3;
   justify-self: start;
   width: 140px;
+  height: min(96vh, calc((100vw - 240px) * 20 / 12));
   margin-left: 28px;
-  height: auto;
 }
 
 @media (max-width: 800px) {
-  .game-section:fullscreen .game-board {
+  .game-section:fullscreen .game-board,
+  .game-section:fullscreen .panel {
     height: min(86vh, calc((100vw - 160px) * 20 / 12));
   }
 
