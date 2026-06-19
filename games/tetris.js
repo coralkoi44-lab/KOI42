@@ -107,10 +107,19 @@ export function initTetris() {
     return cell !== null && cell !== undefined && cell !== 0;
   }
 
+  function isOutOfBounds(x, y) {
+    return x < 0 || x >= COLS || y >= ROWS;
+  }
+
   function collide(arena, player) {
-    return player.matrix.some((row, y) => row.some((value, x) => (
-      value !== 0 && hasCell(arena[y + player.pos.y]?.[x + player.pos.x])
-    )));
+    return player.matrix.some((row, y) => row.some((value, x) => {
+      if (value === 0) return false;
+
+      const arenaX = x + player.pos.x;
+      const arenaY = y + player.pos.y;
+
+      return isOutOfBounds(arenaX, arenaY) || hasCell(arena[arenaY]?.[arenaX]);
+    }));
   }
 
   function merge(arena, player) {
