@@ -59,17 +59,19 @@ body {
 }
 
 button {
-  background: transparent;
-  color: inherit;
+  background: var(--accent);
+  color: var(--text);
   border: 2px solid currentColor;
   padding: 12px 18px;
   font-family: "Plus Jakarta Sans", sans-serif;
   font-weight: 800;
   cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease;
 }
 
 button:hover {
   transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
 .aesthetic-menu-wrap {
@@ -85,22 +87,16 @@ button:hover {
 }
 
 @keyframes aestheticSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-42px) rotate(-2deg);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0) rotate(0deg);
-  }
+  from { opacity: 0; transform: translateX(-42px) rotate(-2deg); }
+  to { opacity: 1; transform: translateX(0) rotate(0deg); }
 }
 
 #aestheticButton,
 .aesthetic-panel,
 .overlay-box,
+.settings-box,
 .controls-box {
-  background: var(--bg);
+  background: var(--accent);
   color: var(--text);
 }
 
@@ -117,32 +113,19 @@ button:hover {
 }
 
 @keyframes aestheticPanelPop {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.97);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes aestheticPanelAway {
-  from {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-
-  to {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.97);
-  }
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-8px) scale(0.97); }
 }
 
 .hidden,
 .aesthetic-panel.hidden,
 .overlay.hidden,
+.settings-modal.hidden,
 .controls-modal.hidden {
   display: none;
 }
@@ -152,6 +135,7 @@ button:hover {
 p,
 .overlay-text,
 .panel,
+.settings-box,
 .controls-box p {
   font-family: "Space Mono", monospace;
 }
@@ -175,7 +159,8 @@ p,
   text-align: left;
 }
 
-.theme-option.active {
+.theme-option.active,
+.settings-tab.active {
   background: var(--text);
   color: var(--bg);
 }
@@ -187,9 +172,10 @@ p,
   font-size: 12px;
 }
 
-.custom-theme-picker label {
+.custom-theme-picker label,
+.toggle-row {
   display: grid;
-  grid-template-columns: 1fr 44px;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 10px;
   margin-top: 8px;
@@ -212,6 +198,7 @@ p,
 
 .hero,
 .game-section,
+.settings-modal,
 .controls-modal {
   display: flex;
   align-items: center;
@@ -271,27 +258,14 @@ p {
 }
 
 @keyframes impactSmall {
-  35% {
-    transform: translateY(5px);
-  }
-
-  65% {
-    transform: translateY(-2px);
-  }
+  35% { transform: translateY(5px); }
+  65% { transform: translateY(-2px); }
 }
 
 @keyframes impactBig {
-  20% {
-    transform: translate(-4px, 7px) rotate(-1deg);
-  }
-
-  40% {
-    transform: translate(5px, -3px) rotate(1deg);
-  }
-
-  65% {
-    transform: translate(-2px, 4px) rotate(-0.5deg);
-  }
+  20% { transform: translate(-4px, 7px) rotate(-1deg); }
+  40% { transform: translate(5px, -3px) rotate(1deg); }
+  65% { transform: translate(-2px, 4px) rotate(-0.5deg); }
 }
 
 canvas {
@@ -302,8 +276,8 @@ canvas {
 }
 
 #tetris {
-  width: 240px;
-  height: 400px;
+  width: 250px;
+  height: 500px;
 }
 
 .overlay {
@@ -313,7 +287,7 @@ canvas {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: color-mix(in srgb, var(--text) 12%, transparent);
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
   backdrop-filter: blur(2px);
   padding: 20px;
   z-index: 5;
@@ -322,7 +296,7 @@ canvas {
 .overlay-box {
   border: 2px solid currentColor;
   padding: 22px;
-  max-width: 200px;
+  max-width: 210px;
 }
 
 .overlay-title {
@@ -339,12 +313,13 @@ canvas {
 }
 
 .panel {
-  width: 140px;
-  height: 400px;
+  width: 150px;
+  min-height: 500px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   justify-content: space-between;
+  gap: 12px;
   font-size: 16px;
   line-height: 1.5;
 }
@@ -353,12 +328,28 @@ canvas {
   width: 100%;
   min-height: 42px;
   font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 34px;
+  font-size: 30px;
   line-height: 1;
   margin: 0;
   text-align: center;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.stat-line {
+  width: 100%;
+  border: 2px solid currentColor;
+  background: var(--accent);
+  padding: 6px 8px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.action-text {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .next-piece-panel {
@@ -391,8 +382,10 @@ canvas {
 .side-buttons button {
   width: 100%;
   text-align: center;
+  padding: 10px 12px;
 }
 
+.settings-modal,
 .controls-modal {
   position: fixed;
   inset: 0;
@@ -400,25 +393,104 @@ canvas {
   backdrop-filter: blur(4px);
   padding: 24px;
   z-index: 100;
+  animation: settingsBackdropIn 0.2s ease both;
 }
 
+.settings-modal.closing {
+  animation: settingsBackdropOut 0.18s ease both;
+}
+
+.settings-box,
 .controls-box {
   border: 2px solid currentColor;
-  padding: 28px;
-  max-width: 360px;
-  width: 100%;
+  padding: 22px;
+  max-width: 560px;
+  width: min(100%, 560px);
+  max-height: min(82vh, 640px);
+  overflow: auto;
+  box-shadow: 10px 10px 0 currentColor;
+  animation: settingsBoxIn 0.24s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
 }
 
+.settings-modal.closing .settings-box {
+  animation: settingsBoxOut 0.18s ease both;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.settings-box h3,
 .controls-box h3 {
-  margin: 0 0 16px;
-  font-size: 36px;
+  margin: 0;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: clamp(28px, 6vw, 44px);
   letter-spacing: -0.05em;
 }
 
-.controls-box p {
-  font-size: 15px;
-  line-height: 1.6;
-  margin: 0 0 20px;
+.settings-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.settings-tab {
+  padding: 10px;
+  font-size: 12px;
+}
+
+.settings-panel {
+  display: none;
+  border: 2px solid currentColor;
+  padding: 14px;
+  background: color-mix(in srgb, var(--bg) 35%, transparent);
+}
+
+.settings-panel.active {
+  display: block;
+}
+
+.settings-panel p,
+.controls-box p,
+.small-note {
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.small-note {
+  margin-top: 16px;
+}
+
+.toggle-row input {
+  width: 24px;
+  height: 24px;
+  accent-color: var(--text);
+}
+
+@keyframes settingsBackdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes settingsBackdropOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes settingsBoxIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.96) rotate(-1deg); }
+  to { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+
+@keyframes settingsBoxOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(16px) scale(0.97); }
 }
 
 .game-section:fullscreen {
@@ -438,16 +510,17 @@ canvas {
   width: 100vw;
   height: 100vh;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(160px, 1fr) auto minmax(150px, 1fr);
   align-items: center;
   justify-items: center;
-  gap: 0;
+  gap: 24px;
+  padding: 24px;
 }
 
 .game-section:fullscreen .game-board {
   grid-column: 2;
-  height: min(96vh, calc((100vw - 240px) * 20 / 12));
-  aspect-ratio: 12 / 20;
+  height: min(94vh, calc((100vw - 260px) * 20 / 10));
+  aspect-ratio: 10 / 20;
 }
 
 .game-section:fullscreen #tetris {
@@ -458,19 +531,50 @@ canvas {
 .game-section:fullscreen .panel {
   grid-column: 3;
   justify-self: start;
-  width: 140px;
-  height: min(96vh, calc((100vw - 240px) * 20 / 12));
-  margin-left: 28px;
+  width: 150px;
+  min-height: 0;
+  height: min(94vh, calc((100vw - 260px) * 20 / 10));
 }
 
-@media (max-width: 800px) {
-  .game-section:fullscreen .game-board,
-  .game-section:fullscreen .panel {
-    height: min(86vh, calc((100vw - 160px) * 20 / 12));
+@media (max-width: 820px) {
+  #tetris {
+    width: 210px;
+    height: 420px;
+  }
+
+  .panel {
+    width: 210px;
+    min-height: auto;
+  }
+
+  .game-section:fullscreen .game-wrap {
+    grid-template-columns: auto;
+    grid-template-rows: auto auto;
+    gap: 14px;
+    align-content: center;
+  }
+
+  .game-section:fullscreen .game-board {
+    grid-column: 1;
+    height: min(72vh, 78vw * 2);
   }
 
   .game-section:fullscreen .panel {
-    width: 120px;
-    margin-left: 16px;
+    grid-column: 1;
+    width: min(92vw, 420px);
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+  }
+
+  .game-section:fullscreen .next-piece-panel {
+    display: none;
+  }
+
+  .game-section:fullscreen .side-buttons {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
   }
 }
