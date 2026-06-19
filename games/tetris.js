@@ -19,11 +19,7 @@ export function initTetris() {
   const nextCanvas = document.getElementById("nextPiece");
   const scoreElement = document.getElementById("score");
   const levelElement = document.getElementById("level");
-  const speedElement = document.getElementById("speed");
   const linesElement = document.getElementById("lines");
-  const levelStat = document.getElementById("levelStat");
-  const speedStat = document.getElementById("speedStat");
-  const actionText = document.getElementById("actionText");
 
   const context = canvas.getContext("2d");
   const nextContext = nextCanvas.getContext("2d");
@@ -283,26 +279,19 @@ export function initTetris() {
     const level = player.level;
     let base = 0;
     let difficult = false;
-    let label = "";
 
     if (spin === "tspin") {
       base = [400, 800, 1200, 1600][lineCount] || 0;
       difficult = lineCount > 0;
-      label = lineCount === 0 ? "T-spin" : `T-spin ${lineName(lineCount)}`;
     } else if (spin === "mini") {
       base = lineCount === 0 ? 100 : lineCount === 1 ? 200 : 400;
       difficult = lineCount > 0;
-      label = lineCount === 0 ? "mini T-spin" : `mini T-spin ${lineName(lineCount)}`;
     } else {
       base = [0, 100, 300, 500, 800][lineCount] || 0;
       difficult = lineCount === 4;
-      label = lineCount === 0 ? "" : lineCount === 4 ? "tetris" : lineName(lineCount);
     }
 
-    if (difficult && player.backToBack) {
-      base = Math.floor(base * 1.5);
-      label = `B2B ${label}`;
-    }
+    if (difficult && player.backToBack) base = Math.floor(base * 1.5);
 
     if (lineCount > 0) {
       player.combo += 1;
@@ -320,16 +309,10 @@ export function initTetris() {
     if (lineCount > 0 && isPerfectClear()) {
       const perfectClearBonus = [0, 800, 1200, 1800, 2000][lineCount] || 800;
       player.score += perfectClearBonus * level;
-      label = `${label} perfect clear`;
     }
 
     refreshLevelFromLines();
     updateSpeed();
-    actionText.innerText = label || "ready";
-  }
-
-  function lineName(count) {
-    return ["", "single", "double", "triple", "tetris"][count] || `${count} lines`;
   }
 
   function isPerfectClear() {
@@ -456,10 +439,6 @@ export function initTetris() {
     scoreElement.innerText = player.score;
     levelElement.innerText = player.level;
     linesElement.innerText = player.lines;
-    speedElement.innerText = `${(BASE_DROP_INTERVAL / dropInterval).toFixed(1)}x`;
-    levelStat.classList.toggle("is-hidden", !speedIncreaseEnabled);
-    speedStat.classList.toggle("is-hidden", !speedIncreaseEnabled);
-    actionText.classList.toggle("is-hidden", !speedIncreaseEnabled);
   }
 
   function startGame() {
@@ -482,7 +461,6 @@ export function initTetris() {
     lineClearAnimation = null;
     dropCounter = 0;
     lastTime = 0;
-    actionText.innerText = "ready";
     startScreen.classList.add("hidden");
     pauseScreen.classList.add("hidden");
     gameOverScreen.classList.add("hidden");
@@ -503,7 +481,6 @@ export function initTetris() {
     paused = false;
     pauseScreen.classList.add("hidden");
     gameOverScreen.classList.remove("hidden");
-    actionText.innerText = "game over";
     triggerImpact("big");
   }
 
@@ -561,7 +538,8 @@ export function initTetris() {
     if (gameStarted && gameKeys.includes(event.code)) event.preventDefault();
     if (event.key === "Escape") closeSettingsModal();
     if (event.code === "Space") {
-      togglePause();
+      if (gameOver) startGame();
+      else togglePause();
       return;
     }
     if (paused && resumeOnNextInteraction && gameKeys.includes(event.code)) resumeGame();
