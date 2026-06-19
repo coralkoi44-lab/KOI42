@@ -1,7 +1,7 @@
 :root {
   --bee-orange: #FFB84E;
   --bee-black: #1B1A1B;
-  --heather-pink: #FFACDE;
+  --heather-pink: #FFC2E7;
 
   --custom-primary: #000000;
   --custom-secondary: #FFFFFF;
@@ -21,7 +21,7 @@ body[data-theme="bee"] {
 body[data-theme="anti-bee"] {
   --bg: var(--bee-black);
   --text: var(--bee-orange);
-  --accent: #FF9A3B;
+  --accent: #474747;
 }
 
 body[data-theme="heather"] {
@@ -33,7 +33,7 @@ body[data-theme="heather"] {
 body[data-theme="anti-heather"] {
   --bg: var(--bee-black);
   --text: var(--heather-pink);
-  --accent: #FF97D5;
+  --accent: #474747;
 }
 
 body[data-theme="custom"] {
@@ -55,7 +55,7 @@ body {
 }
 
 button {
-  background: transparent;
+  background: var(--accent);
   color: inherit;
   border: 2px solid currentColor;
   padding: 12px 18px;
@@ -67,7 +67,7 @@ button {
 
 button:hover,
 button:focus-visible {
-  background: var(--accent);
+  background: transparent;
   transform: translateY(-1px);
   filter: brightness(1.02);
 }
@@ -89,7 +89,6 @@ button:focus-visible {
   to { opacity: 1; transform: translateX(0) rotate(0deg); }
 }
 
-#aestheticButton,
 .aesthetic-panel,
 .overlay-box,
 .settings-box {
@@ -155,7 +154,7 @@ p,
 
 .theme-option.active,
 .settings-tab.active {
-  background: var(--accent);
+  background: transparent;
   color: var(--text);
 }
 
@@ -343,23 +342,17 @@ canvas {
 .stat-stack {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .stat-line {
   width: 100%;
   border: 2px solid currentColor;
   background: transparent;
-  padding: 6px 8px;
+  padding: 8px;
   font-size: 13px;
   text-align: center;
-}
-
-.action-text {
-  min-height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .side-buttons {
@@ -450,14 +443,27 @@ canvas {
 .toggle-row input {
   appearance: none;
   -webkit-appearance: none;
+  position: relative;
   width: 28px;
   height: 28px;
   border: 2px solid currentColor;
-  background: transparent;
+  background: var(--accent);
   cursor: pointer;
 }
 
-.toggle-row input:checked { background: var(--accent); }
+.toggle-row input::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text);
+}
+
+.toggle-row input:checked::after { content: "X"; }
 .toggle-row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 @keyframes settingsBackdropIn {
