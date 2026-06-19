@@ -27,13 +27,13 @@ body[data-theme="anti-bee"] {
 body[data-theme="heather"] {
   --bg: var(--heather-pink);
   --text: var(--bee-black);
-  --accent: #FF89D0;
+  --accent: #FF80CC;
 }
 
 body[data-theme="anti-heather"] {
   --bg: var(--bee-black);
   --text: var(--heather-pink);
-  --accent: #FF89D0;
+  --accent: #FF80CC;
 }
 
 body[data-theme="custom"] {
