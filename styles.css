@@ -1,6 +1,29 @@
 :root {
-  --orange: #FFB84E;
-  --charcoal: #1B1A1B;
+  --bee-orange: #FFB84E;
+  --bee-black: #1B1A1B;
+  --gub-pink: #FFACDE;
+  --bg: var(--bee-orange);
+  --text: var(--bee-black);
+}
+
+body[data-theme="bee"] {
+  --bg: var(--bee-orange);
+  --text: var(--bee-black);
+}
+
+body[data-theme="anti-bee"] {
+  --bg: var(--bee-black);
+  --text: var(--bee-orange);
+}
+
+body[data-theme="gub"] {
+  --bg: var(--bee-black);
+  --text: var(--gub-pink);
+}
+
+body[data-theme="anti-gub"] {
+  --bg: var(--gub-pink);
+  --text: var(--bee-black);
 }
 
 * {
@@ -13,15 +36,10 @@ html {
 
 body {
   margin: 0;
-  background: var(--orange);
-  color: var(--charcoal);
+  background: var(--bg);
+  color: var(--text);
   font-family: "Plus Jakarta Sans", sans-serif;
   transition: background 0.3s ease, color 0.3s ease;
-}
-
-body.aesthetic-mode {
-  background: var(--charcoal);
-  color: var(--orange);
 }
 
 button {
@@ -38,12 +56,51 @@ button:hover {
   transform: translateY(-1px);
 }
 
-#aestheticButton {
+.aesthetic-menu-wrap {
   position: fixed;
   top: 24px;
   left: 24px;
   z-index: 50;
-  background: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+#aestheticButton {
+  background: var(--bg);
+}
+
+.aesthetic-panel {
+  width: 190px;
+  background: var(--bg);
+  color: var(--text);
+  border: 2px solid currentColor;
+  padding: 10px;
+  box-shadow: 8px 8px 0 currentColor;
+}
+
+.aesthetic-panel.hidden {
+  display: none;
+}
+
+.aesthetic-panel-title {
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.theme-option {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  text-align: left;
+  background: transparent;
+}
+
+.theme-option.active {
+  background: var(--text);
+  color: var(--bg);
 }
 
 .hero {
@@ -148,7 +205,7 @@ p {
 canvas {
   display: block;
   border: 3px solid currentColor;
-  background: rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
   image-rendering: pixelated;
 }
 
@@ -164,7 +221,7 @@ canvas {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: color-mix(in srgb, currentColor 12%, transparent);
+  background: color-mix(in srgb, var(--text) 12%, transparent);
   backdrop-filter: blur(2px);
   padding: 20px;
   z-index: 5;
@@ -175,16 +232,11 @@ canvas {
 }
 
 .overlay-box {
-  background: var(--orange);
-  color: var(--charcoal);
+  background: var(--bg);
+  color: var(--text);
   border: 2px solid currentColor;
   padding: 22px;
   max-width: 200px;
-}
-
-body.aesthetic-mode .overlay-box {
-  background: var(--charcoal);
-  color: var(--orange);
 }
 
 .overlay-title {
@@ -247,7 +299,7 @@ body.aesthetic-mode .overlay-box {
 .controls-modal {
   position: fixed;
   inset: 0;
-  background: color-mix(in srgb, currentColor 18%, transparent);
+  background: color-mix(in srgb, var(--text) 18%, transparent);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -261,17 +313,12 @@ body.aesthetic-mode .overlay-box {
 }
 
 .controls-box {
-  background: var(--orange);
-  color: var(--charcoal);
+  background: var(--bg);
+  color: var(--text);
   border: 2px solid currentColor;
   padding: 28px;
   max-width: 360px;
   width: 100%;
-}
-
-body.aesthetic-mode .controls-box {
-  background: var(--charcoal);
-  color: var(--orange);
 }
 
 .controls-box h3 {
@@ -287,8 +334,8 @@ body.aesthetic-mode .controls-box {
 }
 
 .game-section:fullscreen {
-  background: var(--orange);
-  color: var(--charcoal);
+  background: var(--bg);
+  color: var(--text);
   width: 100vw;
   height: 100vh;
   min-height: 100vh;
@@ -296,11 +343,6 @@ body.aesthetic-mode .controls-box {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-body.aesthetic-mode .game-section:fullscreen {
-  background: var(--charcoal);
-  color: var(--orange);
 }
 
 .game-section:fullscreen h2 {
