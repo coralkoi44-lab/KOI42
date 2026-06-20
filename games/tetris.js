@@ -8,11 +8,11 @@ import {
   ROWS
 } from "./tetris/constants.js";
 import { getTetrisDom } from "./tetris/dom.js";
-import { createGameState, resetGame } from "./tetris/gamestate.js";
+import { createGameState, resetGame, createMatrix } from "./tetris/gamestate.js";
 import { drawGame } from "./tetris/render.js";
 import { setupInputHandlers } from "./tetris/input.js";
 import { copyCell } from "./tetris/pieces.js";
-import { scoreLineClear, calculateDropInterval } from "./tetris/scoring.js";
+import { scoreLineClear } from "./tetris/scoring.js";
 import {
   canMove,
   nextFromBag,
@@ -27,7 +27,6 @@ import {
   refreshLevelAndSpeed,
   getDropInterval
 } from "./tetris/gameplay.js";
-import { createMatrix } from "./tetris/gamestate.js";
 import { loadHighScore, saveHighScore } from "../storage.js";
 
 export function initTetris() {
@@ -36,12 +35,19 @@ export function initTetris() {
 
   const state = createGameState(COLS, ROWS);
   let dropInterval = BASE_DROP_INTERVAL;
+  let highScore = loadHighScore();
 
   // === State Management ===
   function updateStats() {
     dom.scoreElement.innerText = state.player.score;
+    dom.highScoreElement.innerText = highScore;
     dom.levelElement.innerText = state.player.level;
     dom.linesElement.innerText = state.player.lines;
+  }
+
+  function updateHighScore() {
+    highScore = saveHighScore(state.player.score);
+    updateStats();
   }
 
   function playerReset() {
@@ -118,9 +124,7 @@ export function initTetris() {
     dom.gameOverScreen.classList.remove("hidden");
     dom.pauseButton.innerText = PAUSE_LABEL;
     triggerImpact("big");
-
-    // Save high score (foundation layer - TODO: display high score in UI)
-    saveHighScore(state.player.score);
+    updateHighScore();
   }
 
   function pauseGame() {
