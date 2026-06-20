@@ -8,6 +8,46 @@
   <title>KOI</title>
   <link rel="icon" type="image/png" href="favicon.png">
 
+  <script>
+    (() => {
+      const themeColors = {
+        bee: { bg: "#FFB84E", text: "#1B1A1B", accent: "#FF9A3B" },
+        "anti-bee": { bg: "#1B1A1B", text: "#FFB84E", accent: "#474747" },
+        heather: { bg: "#FFC2E7", text: "#1B1A1B", accent: "#EE90CA" },
+        "anti-heather": { bg: "#1B1A1B", text: "#FFC2E7", accent: "#474747" },
+        pearl: { bg: "#A8D5D1", text: "#1B1A1B", accent: "#84C1BB" },
+        "anti-pearl": { bg: "#1B1A1B", text: "#A8D5D1", accent: "#474747" },
+        oatmeal: { bg: "#FFDBB1", text: "#1B1A1B", accent: "#FFCC93" },
+        "anti-oatmeal": { bg: "#1B1A1B", text: "#FFDBB1", accent: "#474747" },
+        coral: { bg: "#FFBBA9", text: "#1B1A1B", accent: "#FFA38A" },
+        "anti-coral": { bg: "#1B1A1B", text: "#FFBBA9", accent: "#474747" }
+      };
+
+      try {
+        const themeName = localStorage.getItem("koi42_theme") || "bee";
+        const root = document.documentElement;
+        root.dataset.theme = themeName;
+
+        if (themeName === "custom") {
+          root.style.setProperty("--custom-primary", localStorage.getItem("koi42_custom_primary") || "#000000");
+          root.style.setProperty("--custom-secondary", localStorage.getItem("koi42_custom_secondary") || "#FFFFFF");
+          root.style.setProperty("--custom-accent", localStorage.getItem("koi42_custom_accent") || "#777777");
+          root.style.setProperty("--bg", "var(--custom-secondary)");
+          root.style.setProperty("--text", "var(--custom-primary)");
+          root.style.setProperty("--accent", "var(--custom-accent)");
+          return;
+        }
+
+        const colors = themeColors[themeName] || themeColors.bee;
+        root.style.setProperty("--bg", colors.bg);
+        root.style.setProperty("--text", colors.text);
+        root.style.setProperty("--accent", colors.accent);
+      } catch (error) {
+        // Keep the CSS default Bee theme if storage is blocked.
+      }
+    })();
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -16,9 +56,25 @@
     rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
+  <style>
+    .high-score {
+      margin-top: 10px;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .game-section:fullscreen .high-score {
+      font-size: 34px;
+    }
+
+    .game-section:fullscreen .stat-stack {
+      margin-top: 112px;
+    }
+  </style>
 </head>
 
-<body data-theme="bee">
+<body>
 
   <div class="aesthetic-menu-wrap">
     <button id="aestheticButton" aria-expanded="false" aria-controls="aestheticPanel">Aesthetics</button>
