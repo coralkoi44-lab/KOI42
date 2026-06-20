@@ -28,6 +28,7 @@ import {
   getDropInterval
 } from "./tetris/gameplay.js";
 import { createMatrix } from "./tetris/gamestate.js";
+import { loadHighScore, saveHighScore } from "../storage.js";
 
 export function initTetris() {
   const dom = getTetrisDom();
@@ -117,6 +118,9 @@ export function initTetris() {
     dom.gameOverScreen.classList.remove("hidden");
     dom.pauseButton.innerText = PAUSE_LABEL;
     triggerImpact("big");
+
+    // Save high score (foundation layer - TODO: display high score in UI)
+    saveHighScore(state.player.score);
   }
 
   function pauseGame() {
@@ -216,6 +220,9 @@ export function initTetris() {
   // === Setup Event Handlers ===
   setupInputHandlers(dom, {
     onKeydown: handleKeydown,
+    onBeginClick: startGame,
+    onPlayAgainClick: startGame,
+    onRestartClick: restartGame,
     onPauseClick: togglePause,
     onSettingsClick: openSettingsModal,
     onCloseSettings: closeSettingsModal,

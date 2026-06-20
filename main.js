@@ -1,5 +1,8 @@
 import { initTetris } from "./games/tetris.js";
+import { themeColors, applyThemeColors } from "./themes.js";
+import { saveTheme, loadTheme, saveCustomTheme, loadCustomTheme } from "./storage.js";
 
+// === DOM References (with null checks) ===
 const aestheticButton = document.getElementById("aestheticButton");
 const aestheticPanel = document.getElementById("aestheticPanel");
 const themeOptions = document.querySelectorAll("[data-theme-choice]");
@@ -9,32 +12,49 @@ const customAccentColor = document.getElementById("customAccentColor");
 const applyCustomTheme = document.getElementById("applyCustomTheme");
 const pauseButton = document.getElementById("pauseButton");
 
-const themeColors = {
-  bee: { bg: "#FFB84E", text: "#1B1A1B", accent: "#FF9A3B" },
-  "anti-bee": { bg: "#1B1A1B", text: "#FFB84E", accent: "#252425" },
-  heather: { bg: "#FFC2E7", text: "#1B1A1B", accent: "#EE90CA" },
-  "anti-heather": { bg: "#1B1A1B", text: "#FFC2E7", accent: "#252425" },
-  pearl: { bg: "#A8D5D1", text: "#1B1A1B", accent: "#84C1BB" },
-  "anti-pearl": { bg: "#1B1A1B", text: "#A8D5D1", accent: "#252425" },
-  oatmeal: { bg: "#FFDBB1", text: "#1B1A1B", accent: "#FFCC93" },
-  "anti-oatmeal": { bg: "#1B1A1B", text: "#FFDBB1", accent: "#252425" },
-  coral: { bg: "#FFBBA9", text: "#1B1A1B", accent: "#FFA38A" },
-  "anti-coral": { bg: "#1B1A1B", text: "#FFBBA9", accent: "#252425" }
-};
+// === Theme Management ===
+function setTheme(themeName) {
+  if (!themeName) return;
 
-function applyThemeColors(themeName) {
-  const colors = themeColors[themeName];
+  document.body.dataset.theme = themeName;
+  applyThemeColors(themeName);
+  saveTheme(themeName);
 
-  if (!colors) {
-    document.body.style.removeProperty("--bg");
-    document.body.style.removeProperty("--text");
-    document.body.style.removeProperty("--accent");
-    return;
+  // Update active button state
+  if (themeOptions.length > 0) {
+    themeOptions.forEach((option) => {
+      option.classList.toggle("active", option.dataset.themeChoice === themeName);
+    });
   }
+}
 
-  document.body.style.setProperty("--bg", colors.bg);
-  document.body.style.setProperty("--text", colors.text);
-  document.body.style.setProperty("--accent", colors.accent);
+function applyCustomColors() {
+  if (!customPrimaryColor || !customSecondaryColor || !customAccentColor) return;
+
+  const colors = {
+    primary: customPrimaryColor.value,
+    secondary: customSecondaryColor.value,
+    accent: customAccentColor.value
+  };
+
+  document.body.style.setProperty("--custom-primary", colors.primary);
+  document.body.style.setProperty("--custom-secondary", colors.secondary);
+  document.body.style.setProperty("--custom-accent", colors.accent);
+  saveCustomTheme(colors);
+  setTheme("custom");
+}
+
+// === UI Helpers ===
+function openAestheticPanel() {
+  if (!aestheticPanel || !aestheticButton) return;
+  aestheticPanel.classList.remove("hidden", "closing");
+  aestheticButton.setAttribute("aria-expanded", "true");
+}
+
+function closeAestheticPanel() {
+  if (!aestheticPanel || !aestheticButton) return;
+  aestheticPanel.classList.add("closing");
+  aestheticButton.setAttribute("aria-expanded", "false");
 }
 
 function normalizePauseButtonLabel() {
@@ -49,56 +69,38 @@ function normalizePauseButtonLabel() {
   if (normalizedLabel) pauseButton.innerText = normalizedLabel;
 }
 
-function setTheme(themeName) {
-  document.body.dataset.theme = themeName;
-  applyThemeColors(themeName);
+// === Event Listeners (with null checks) ===
+if (aestheticButton) {
+  aestheticButton.addEventListener("click", () => {
+    if (aestheticPanel && aestheticPanel.classList.contains("hidden")) {
+      openAestheticPanel();
+    } else {
+      closeAestheticPanel();
+    }
+  });
+}
 
+if (aestheticPanel) {
+  aestheticPanel.addEventListener("animationend", () => {
+    if (aestheticPanel.classList.contains("closing")) {
+      aestheticPanel.classList.add("hidden");
+      aestheticPanel.classList.remove("closing");
+    }
+  });
+}
+
+if (themeOptions.length > 0) {
   themeOptions.forEach((option) => {
-    option.classList.toggle("active", option.dataset.themeChoice === themeName);
+    option.addEventListener("click", () => {
+      const themeName = option.dataset.themeChoice;
+      if (themeName) setTheme(themeName);
+    });
   });
 }
 
-function openAestheticPanel() {
-  aestheticPanel.classList.remove("hidden", "closing");
-  aestheticButton.setAttribute("aria-expanded", "true");
+if (applyCustomTheme) {
+  applyCustomTheme.addEventListener("click", applyCustomColors);
 }
-
-function closeAestheticPanel() {
-  aestheticPanel.classList.add("closing");
-  aestheticButton.setAttribute("aria-expanded", "false");
-}
-
-aestheticButton.addEventListener("click", () => {
-  if (aestheticPanel.classList.contains("hidden")) {
-    openAestheticPanel();
-  } else {
-    closeAestheticPanel();
-  }
-});
-
-aestheticPanel.addEventListener("animationend", () => {
-  if (aestheticPanel.classList.contains("closing")) {
-    aestheticPanel.classList.add("hidden");
-    aestheticPanel.classList.remove("closing");
-  }
-});
-
-themeOptions.forEach((option) => {
-  option.addEventListener("click", () => {
-    setTheme(option.dataset.themeChoice);
-  });
-});
-
-applyCustomTheme.addEventListener("click", () => {
-  document.body.style.setProperty("--custom-primary", customPrimaryColor.value);
-  document.body.style.setProperty("--custom-secondary", customSecondaryColor.value);
-  document.body.style.setProperty("--custom-accent", customAccentColor.value);
-  setTheme("custom");
-});
-
-setTheme("bee");
-initTetris();
-normalizePauseButtonLabel();
 
 if (pauseButton) {
   new MutationObserver(normalizePauseButtonLabel).observe(pauseButton, {
@@ -107,3 +109,22 @@ if (pauseButton) {
     subtree: true
   });
 }
+
+// === Initialization ===
+// Restore saved theme or use default
+const savedTheme = loadTheme();
+setTheme(savedTheme);
+
+// Restore saved custom colors if theme is "custom"
+if (savedTheme === "custom") {
+  const customTheme = loadCustomTheme();
+  if (customTheme.primary && customTheme.secondary && customTheme.accent) {
+    if (customPrimaryColor) customPrimaryColor.value = customTheme.primary;
+    if (customSecondaryColor) customSecondaryColor.value = customTheme.secondary;
+    if (customAccentColor) customAccentColor.value = customTheme.accent;
+    applyCustomColors();
+  }
+}
+
+initTetris();
+normalizePauseButtonLabel();
