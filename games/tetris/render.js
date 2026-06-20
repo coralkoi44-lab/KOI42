@@ -5,8 +5,12 @@ export function resizeCanvas(canvasElement, drawingContext, cols, rows) {
   if (!canvasElement || !drawingContext) return;
   const pixelRatio = window.devicePixelRatio || 1;
   const rect = canvasElement.getBoundingClientRect();
-  canvasElement.width = Math.max(1, Math.round(rect.width * pixelRatio));
-  canvasElement.height = Math.max(1, Math.round(rect.height * pixelRatio));
+  const width = Math.max(1, Math.round(rect.width * pixelRatio));
+  const height = Math.max(1, Math.round(rect.height * pixelRatio));
+
+  if (canvasElement.width !== width) canvasElement.width = width;
+  if (canvasElement.height !== height) canvasElement.height = height;
+
   drawingContext.setTransform(canvasElement.width / cols, 0, 0, canvasElement.height / rows, 0, 0);
 }
 
