@@ -37,16 +37,16 @@ export function initTetris() {
   let dropInterval = BASE_DROP_INTERVAL;
   let highScore = loadHighScore();
 
+  function updateHighScore() {
+    highScore = saveHighScore(state.player.score);
+  }
+
   function updateStats() {
+    if (state.player.score > highScore) updateHighScore();
     dom.scoreElement.innerText = state.player.score;
     dom.highScoreElement.innerText = highScore;
     dom.levelElement.innerText = state.player.level;
     dom.linesElement.innerText = state.player.lines;
-  }
-
-  function updateHighScore() {
-    highScore = saveHighScore(state.player.score);
-    updateStats();
   }
 
   function playerReset() {
@@ -122,7 +122,7 @@ export function initTetris() {
     dom.gameOverScreen.classList.remove("hidden");
     dom.pauseButton.innerText = PAUSE_LABEL;
     boardBump("big");
-    updateHighScore();
+    updateStats();
   }
 
   function pauseGame() {
