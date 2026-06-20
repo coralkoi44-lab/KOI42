@@ -115,7 +115,14 @@ export function drawGame(state, dom) {
   drawGrid(dom.context, dom.canvas, COLS, ROWS);
   drawMatrix(state.arena, { x: 0, y: 0 }, dom.context, dom.canvas, COLS);
   if (state.gameStarted && !state.gameOver && state.player.matrix) {
-    drawMatrix(state.player.matrix, state.player.pos, dom.context, dom.canvas, COLS, state.player.pieceId);
+    drawMatrix(
+      state.player.matrix,
+      { x: state.player.pos.x, y: state.player.visualY ?? state.player.pos.y },
+      dom.context,
+      dom.canvas,
+      COLS,
+      state.player.pieceId
+    );
   }
   drawNextPiece(state.player.nextMatrix, state.player.nextPieceId, dom);
 }
