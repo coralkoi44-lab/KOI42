@@ -51,7 +51,7 @@ On page load, KOI42 restores the saved named theme. If no saved theme exists, it
 
 Custom theme colors are also restored on page load. If the saved theme is `custom`, the saved custom colors are applied automatically without changing the visual design of the picker or the game.
 
-High-score persistence is currently an underlying storage layer. Tetris saves the highest score locally at game over, but there is no high-score display yet. TODO: add a future high-score UI without changing current gameplay behavior.
+Tetris saves the highest score locally at game over and displays it under the current score as `Highscore`.
 
 ## Tetris notes
 
@@ -63,10 +63,10 @@ The current Tetris build includes:
 - Restart and fullscreen buttons.
 - Settings modal with speed-increase toggle.
 - Level and line tracking.
-- Soft-drop points.
+- Score increases from line clears, T-spins, combos, back-to-back bonuses, and perfect clears.
 - Tetris, combo, back-to-back, T-spin, mini T-spin, and perfect-clear scoring.
 - DOM null checks so missing UI elements fail safely instead of crashing the whole page.
-- Local high-score saving as a foundation for a future high-score display.
+- Local high-score saving and display.
 
 The game remains grid-based, but rendering is isolated enough that future modes like Jelly Tetris or Block Blast can be added without stuffing everything into one giant file.
 
