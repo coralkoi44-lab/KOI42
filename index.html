@@ -57,11 +57,17 @@
 
   <link rel="stylesheet" href="styles.css">
   <style>
+    .score,
     .high-score {
-      margin-top: 10px;
+      width: 100%;
+      min-height: 52px;
       font-family: "Plus Jakarta Sans", sans-serif;
       font-size: 30px;
       line-height: 1;
+      margin: 0;
+      text-align: center;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
 
     .game-section:fullscreen .high-score {
@@ -69,7 +75,7 @@
     }
 
     .game-section:fullscreen .stat-stack {
-      margin-top: 112px;
+      margin-top: 126px;
     }
   </style>
 </head>
@@ -168,9 +174,13 @@
 
       <div class="panel">
         <div class="score">
-          Score:
+          Score:<br>
           <span id="score">0</span>
-          <div class="high-score">Highscore: <span id="highScore">0</span></div>
+        </div>
+
+        <div class="high-score">
+          Highscore:<br>
+          <span id="highScore">0</span>
         </div>
 
         <div class="next-piece-panel">
@@ -228,14 +238,14 @@
 
         <div class="settings-panel" id="scoringTab">
           <p>
-            Clear 1 line: 100 × your level<br>
-            Clear 2 lines at once: 300 × your level<br>
-            Clear 3 lines at once: 500 × your level<br>
-            Clear 4 lines at once, called a Tetris: 800 × your level<br>
-            T-Spin Single: 800 × your level<br>
-            T-Spin Double: 1200 × your level<br>
-            T-Spin Triple: 1600 × your level<br>
-            Mini T-Spin Single: 200 × your level<br>
+            Clear 1 line: 1000 × your level<br>
+            Clear 2 lines at once: 3000 × your level<br>
+            Clear 3 lines at once: 5000 × your level<br>
+            Clear 4 lines at once, called a Tetris: 8000 × your level<br>
+            T-Spin Single: 8000 × your level<br>
+            T-Spin Double: 12000 × your level<br>
+            T-Spin Triple: 16000 × your level<br>
+            Mini T-Spin Single: 2000 × your level<br>
             Back-to-back hard clears: 1.5× bonus<br>
             Combos: extra points when you clear lines on multiple pieces in a row<br>
             Perfect clear: big bonus when the board is completely empty after a clear
