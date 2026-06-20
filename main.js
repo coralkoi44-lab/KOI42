@@ -1,5 +1,5 @@
 import { initTetris } from "./games/tetris.js";
-import { themeColors, applyThemeColors } from "./themes.js";
+import { applyThemeColors } from "./themes.js";
 import { saveTheme, loadTheme, saveCustomTheme, loadCustomTheme } from "./storage.js";
 
 // === DOM References (with null checks) ===
@@ -13,35 +13,66 @@ const applyCustomTheme = document.getElementById("applyCustomTheme");
 const pauseButton = document.getElementById("pauseButton");
 
 // === Theme Management ===
-function setTheme(themeName) {
+function updateActiveThemeOption(themeName) {
+  if (themeOptions.length === 0) return;
+
+  themeOptions.forEach((option) => {
+    option.classList.toggle("active", option.dataset.themeChoice === themeName);
+  });
+}
+
+function setTheme(themeName, { persist = true } = {}) {
   if (!themeName) return;
 
   document.body.dataset.theme = themeName;
   applyThemeColors(themeName);
-  saveTheme(themeName);
+  updateActiveThemeOption(themeName);
 
-  // Update active button state
-  if (themeOptions.length > 0) {
-    themeOptions.forEach((option) => {
-      option.classList.toggle("active", option.dataset.themeChoice === themeName);
-    });
-  }
+  if (persist) saveTheme(themeName);
 }
 
-function applyCustomColors() {
-  if (!customPrimaryColor || !customSecondaryColor || !customAccentColor) return;
+function setCustomColorInputs(colors) {
+  if (!colors) return;
 
-  const colors = {
+  if (colors.primary && customPrimaryColor) customPrimaryColor.value = colors.primary;
+  if (colors.secondary && customSecondaryColor) customSecondaryColor.value = colors.secondary;
+  if (colors.accent && customAccentColor) customAccentColor.value = colors.accent;
+}
+
+function getCustomColorInputs() {
+  if (!customPrimaryColor || !customSecondaryColor || !customAccentColor) return null;
+
+  return {
     primary: customPrimaryColor.value,
     secondary: customSecondaryColor.value,
     accent: customAccentColor.value
   };
+}
+
+function applyCustomColors({ persist = true } = {}) {
+  const colors = getCustomColorInputs();
+  if (!colors) return;
 
   document.body.style.setProperty("--custom-primary", colors.primary);
   document.body.style.setProperty("--custom-secondary", colors.secondary);
   document.body.style.setProperty("--custom-accent", colors.accent);
-  saveCustomTheme(colors);
-  setTheme("custom");
+
+  if (persist) saveCustomTheme(colors);
+  setTheme("custom", { persist });
+}
+
+function restoreSavedTheme() {
+  const savedTheme = loadTheme();
+  const savedCustomTheme = loadCustomTheme();
+
+  setCustomColorInputs(savedCustomTheme);
+
+  if (savedTheme === "custom" && savedCustomTheme.primary && savedCustomTheme.secondary && savedCustomTheme.accent) {
+    applyCustomColors({ persist: false });
+    return;
+  }
+
+  setTheme(savedTheme, { persist: false });
 }
 
 // === UI Helpers ===
@@ -99,7 +130,7 @@ if (themeOptions.length > 0) {
 }
 
 if (applyCustomTheme) {
-  applyCustomTheme.addEventListener("click", applyCustomColors);
+  applyCustomTheme.addEventListener("click", () => applyCustomColors());
 }
 
 if (pauseButton) {
@@ -111,20 +142,6 @@ if (pauseButton) {
 }
 
 // === Initialization ===
-// Restore saved theme or use default
-const savedTheme = loadTheme();
-setTheme(savedTheme);
-
-// Restore saved custom colors if theme is "custom"
-if (savedTheme === "custom") {
-  const customTheme = loadCustomTheme();
-  if (customTheme.primary && customTheme.secondary && customTheme.accent) {
-    if (customPrimaryColor) customPrimaryColor.value = customTheme.primary;
-    if (customSecondaryColor) customSecondaryColor.value = customTheme.secondary;
-    if (customAccentColor) customAccentColor.value = customTheme.accent;
-    applyCustomColors();
-  }
-}
-
+restoreSavedTheme();
 initTetris();
 normalizePauseButtonLabel();
