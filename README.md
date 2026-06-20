@@ -6,8 +6,10 @@ A personal website with custom aesthetics, a playable Tetris build, and room for
 
 - `index.html` contains the page structure, theme buttons, custom theme controls, favicon, and Tetris UI.
 - `styles.css` contains visual styling, layout rules, fullscreen behavior, and animations.
-- `main.js` handles the aesthetics menu, named colorways, custom color application, and pause-label normalization.
-- `games/tetris.js` is the main Tetris controller. It wires together the UI, input handling, game loop, drawing, pause/settings behavior, fullscreen behavior, and gameplay state.
+- `main.js` handles the aesthetics menu, theme initialization, custom color application, and pause-label normalization.
+- `themes.js` stores named theme definitions and theme color helpers so theme data stays out of `main.js`.
+- `storage.js` centralizes persistence helpers for selected themes, custom colors, and Tetris high scores.
+- `games/tetris.js` is the main Tetris controller. It wires together the UI, input handling, game loop, drawing, pause/settings behavior, fullscreen behavior, gameplay state, and high-score saving.
 - `games/tetris/constants.js` stores shared Tetris constants and UI labels.
 - `games/tetris/dom.js` safely collects required DOM elements and prevents Tetris from starting if required markup is missing.
 - `games/tetris/pieces.js` stores matrix helpers, piece creation, bag randomization, rotation helpers, and cell utilities.
@@ -35,6 +37,22 @@ Current themes:
 - `anti-coral`: black background, coral text, charcoal accent.
 - `custom`: user-selected primary, secondary, and accent colors from the aesthetics menu.
 
+Theme definitions live in `themes.js`. `main.js` imports the theme helper instead of storing the named colorways inline.
+
+## Persistence
+
+`storage.js` is the only module that should talk directly to `localStorage` for site persistence. It provides helpers for saving and loading:
+
+- The selected theme name.
+- Custom primary, secondary, and accent colors.
+- The highest locally recorded Tetris score.
+
+On page load, KOI42 restores the saved named theme. If no saved theme exists, it defaults to `bee`.
+
+Custom theme colors are also restored on page load. If the saved theme is `custom`, the saved custom colors are applied automatically without changing the visual design of the picker or the game.
+
+High-score persistence is currently an underlying storage layer. Tetris saves the highest score locally at game over, but there is no high-score display yet. TODO: add a future high-score UI without changing current gameplay behavior.
+
 ## Tetris notes
 
 The current Tetris build includes:
@@ -48,6 +66,7 @@ The current Tetris build includes:
 - Soft-drop points.
 - Tetris, combo, back-to-back, T-spin, mini T-spin, and perfect-clear scoring.
 - DOM null checks so missing UI elements fail safely instead of crashing the whole page.
+- Local high-score saving as a foundation for a future high-score display.
 
 The game remains grid-based, but rendering is isolated enough that future modes like Jelly Tetris or Block Blast can be added without stuffing everything into one giant file.
 
