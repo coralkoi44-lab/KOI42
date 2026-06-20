@@ -37,7 +37,6 @@ export function initTetris() {
   let dropInterval = BASE_DROP_INTERVAL;
   let highScore = loadHighScore();
 
-  // === State Management ===
   function updateStats() {
     dom.scoreElement.innerText = state.player.score;
     dom.highScoreElement.innerText = highScore;
@@ -89,7 +88,7 @@ export function initTetris() {
     scoreLineClear(state.player, lines.length, spin, isPerfectClear(state.arena), state.speedIncreaseEnabled);
     refreshLevelAndSpeed(state, state.speedIncreaseEnabled);
     dropInterval = getDropInterval(state, state.speedIncreaseEnabled);
-    if (lines.length > 0) triggerImpact("big");
+    if (lines.length > 0) boardBump("big");
     playerReset();
     updateStats();
   }
@@ -97,11 +96,10 @@ export function initTetris() {
   function lockPiece(impactType) {
     const spin = getTSpinType(state.arena, state.player);
     merge(state.arena, state.player);
-    if (impactType) triggerImpact(impactType);
+    if (impactType) boardBump(impactType);
     finishLineClear(findFullLines(state.arena), spin);
   }
 
-  // === Game State Control ===
   function startGame() {
     resetGame(state, COLS, ROWS, dom.speedIncreaseToggle.checked);
     state.gameStarted = true;
@@ -134,7 +132,7 @@ export function initTetris() {
     dom.pauseScreen.classList.add("hidden");
     dom.gameOverScreen.classList.remove("hidden");
     dom.pauseButton.innerText = PAUSE_LABEL;
-    triggerImpact("big");
+    boardBump("big");
     updateHighScore();
   }
 
@@ -159,7 +157,6 @@ export function initTetris() {
     else pauseGame();
   }
 
-  // === UI Modal Control ===
   function openSettingsModal() {
     dom.settingsModal.classList.remove("hidden", "closing");
     dom.settingsModal.setAttribute("aria-hidden", "false");
@@ -176,21 +173,25 @@ export function initTetris() {
     dom.settingsPanels.forEach((panel) => panel.classList.toggle("active", panel.id === tabId));
   }
 
-  // === Utilities ===
   function animateElement(element, className, duration = 400) {
+    if (!element) return;
     element.classList.remove(className);
     void element.offsetWidth;
     element.classList.add(className);
     window.setTimeout(() => element.classList.remove(className), duration);
   }
 
+  function boardBump(size) {
+    animateElement(dom.gameBoard, size === "big" ? "impact-big" : "impact-small", size === "big" ? 240 : 160);
+  }
+
   function bounceElement(element) {
+    if (!element) return;
     element.style.animation = "none";
     void element.offsetWidth;
     element.style.animation = "toggleBounce 0.24s ease";
   }
 
-  // === Input Handling ===
   function handleKeydown(event) {
     const gameKeys = ["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Space", "KeyA", "KeyD", "KeyS", "KeyW"];
     if (state.gameStarted && gameKeys.includes(event.code)) event.preventDefault();
@@ -233,7 +234,6 @@ export function initTetris() {
     bounceElement(dom.speedIncreaseToggle);
   }
 
-  // === Setup Event Handlers ===
   setupInputHandlers(dom, {
     onKeydown: handleKeydown,
     onBeginClick: startGame,
@@ -264,7 +264,6 @@ export function initTetris() {
 
   window.addEventListener("resize", () => drawGame(state, dom));
 
-  // === Game Loop ===
   function update(time = 0) {
     const deltaTime = time - state.lastTime;
     state.lastTime = time;
@@ -282,7 +281,6 @@ export function initTetris() {
     requestAnimationFrame(update);
   }
 
-  // === Initialize ===
   refreshLevelAndSpeed(state, state.speedIncreaseEnabled);
   dropInterval = getDropInterval(state, state.speedIncreaseEnabled);
   updateStats();
