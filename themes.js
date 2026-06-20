@@ -6,15 +6,15 @@
 
 export const themeColors = {
   bee: { bg: "#FFB84E", text: "#1B1A1B", accent: "#FF9A3B" },
-  "anti-bee": { bg: "#1B1A1B", text: "#FFB84E", accent: "#252425" },
+  "anti-bee": { bg: "#1B1A1B", text: "#FFB84E", accent: "#474747" },
   heather: { bg: "#FFC2E7", text: "#1B1A1B", accent: "#EE90CA" },
-  "anti-heather": { bg: "#1B1A1B", text: "#FFC2E7", accent: "#252425" },
+  "anti-heather": { bg: "#1B1A1B", text: "#FFC2E7", accent: "#474747" },
   pearl: { bg: "#A8D5D1", text: "#1B1A1B", accent: "#84C1BB" },
-  "anti-pearl": { bg: "#1B1A1B", text: "#A8D5D1", accent: "#252425" },
+  "anti-pearl": { bg: "#1B1A1B", text: "#A8D5D1", accent: "#474747" },
   oatmeal: { bg: "#FFDBB1", text: "#1B1A1B", accent: "#FFCC93" },
-  "anti-oatmeal": { bg: "#1B1A1B", text: "#FFDBB1", accent: "#252425" },
+  "anti-oatmeal": { bg: "#1B1A1B", text: "#FFDBB1", accent: "#474747" },
   coral: { bg: "#FFBBA9", text: "#1B1A1B", accent: "#FFA38A" },
-  "anti-coral": { bg: "#1B1A1B", text: "#FFBBA9", accent: "#252425" }
+  "anti-coral": { bg: "#1B1A1B", text: "#FFBBA9", accent: "#474747" }
 };
 
 /**
