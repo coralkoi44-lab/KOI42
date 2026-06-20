@@ -50,6 +50,16 @@ export function initTetris() {
     updateStats();
   }
 
+  function updateVisualPosition() {
+    if (!canMove(state)) {
+      state.player.visualY = state.player.pos.y;
+      return;
+    }
+
+    const dropProgress = Math.min(state.dropCounter / dropInterval, 0.98);
+    state.player.visualY = state.player.pos.y + dropProgress;
+  }
+
   function playerReset() {
     state.player.matrix = state.player.nextMatrix;
     state.player.type = state.player.nextType;
@@ -62,6 +72,7 @@ export function initTetris() {
     state.player.nextPieceId = state.pieceIdCounter++;
     state.player.lastAction = null;
     state.player.pos.y = 0;
+    state.player.visualY = 0;
     state.player.pos.x = Math.floor(COLS / 2) - Math.floor(state.player.matrix[0].length / 2);
 
     if (collide(state.arena, state.player)) endGame();
@@ -196,6 +207,7 @@ export function initTetris() {
     if (event.key === "ArrowRight" || event.code === "KeyD") playerMove(state.arena, state.player, 1, state);
     if (event.key === "ArrowDown" || event.code === "KeyS") {
       const result = playerDrop(state.arena, state.player, state, true);
+      state.player.visualY = state.player.pos.y;
       if (result === "lock") lockPiece("small");
       updateStats();
     }
@@ -265,6 +277,7 @@ export function initTetris() {
       }
     }
 
+    updateVisualPosition();
     drawGame(state, dom);
     requestAnimationFrame(update);
   }
