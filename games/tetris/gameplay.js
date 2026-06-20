@@ -57,7 +57,6 @@ export function playerDrop(arena, player, state, isManual = false) {
     return "lock";
   }
   if (isManual) {
-    player.score += 1;
     player.lastAction = "drop";
   }
   state.dropCounter = 0;
