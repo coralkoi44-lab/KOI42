@@ -21,7 +21,7 @@ export function scoreLineClear(player, lineCount, spin, perfectClear, speedIncre
     base = lineCount === 0 ? 1000 : lineCount === 1 ? 2000 : 4000;
     difficult = lineCount > 0;
   } else {
-    base = [0, 1000, 3000, 5000, 8000][lineCount] || 0;
+    base = [0, 10, 30, 50, 80][lineCount] || 0;
     difficult = lineCount === 4;
   }
 
