@@ -23,6 +23,7 @@ export function getTetrisDom() {
     canvas: getRequiredElement("tetris"),
     nextCanvas: getRequiredElement("nextPiece"),
     scoreElement: getRequiredElement("score"),
+    highScoreElement: getRequiredElement("highScore"),
     levelElement: getRequiredElement("level"),
     linesElement: getRequiredElement("lines")
   };
