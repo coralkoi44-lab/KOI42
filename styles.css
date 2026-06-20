@@ -258,8 +258,6 @@ button:active {
 }
 
 .custom-theme-picker {
-  border-top: 2px solid currentColor;
-  margin-top: 12px;
   padding-top: 12px;
   font-size: 12px;
   font-family: "Space Mono", monospace;
@@ -406,7 +404,7 @@ canvas {
 
 .score {
   width: 100%;
-  min-height: 36px;
+  min-height: 52px;
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 30px;
   line-height: 1;
@@ -414,6 +412,13 @@ canvas {
   text-align: center;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.high-score {
+  margin-top: 6px;
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  line-height: 1.2;
 }
 
 .next-piece-panel {
@@ -681,7 +686,7 @@ canvas {
   align-self: start;
   justify-self: start;
   width: 170px;
-  margin-top: 58px;
+  margin-top: 74px;
   gap: 14px;
 }
 
